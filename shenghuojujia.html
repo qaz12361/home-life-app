@@ -5,1399 +5,1497 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>🏠 居家生活助手</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #333; overflow-x: hidden; }
-  .page { display: none; min-height: 100vh; padding-bottom: 80px; }
-  .page.active { display: block; animation: fadeIn 0.3s ease; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-  .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #eee; display: flex; justify-content: space-around; padding: 8px 0; z-index: 1000; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
-  .nav-item { text-align: center; cursor: pointer; padding: 0 12px; color: #999; transition: color 0.2s; }
-  .nav-item.active { color: #667eea; }
-  .nav-item .icon { font-size: 22px; display: block; margin-bottom: 2px; }
-  .nav-item .label { font-size: 10px; }
-  .home-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px 16px 24px; }
-  .home-search-box { background: white; border-radius: 24px; padding: 12px 16px; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-  .home-search-box input { flex: 1; border: none; outline: none; font-size: 14px; background: transparent; }
-  .home-search-box .search-icon { color: #999; font-size: 18px; }
-  .hot-tags { padding: 12px 16px; background: white; margin-bottom: 12px; }
-  .hot-tags-title { font-size: 12px; color: #666; margin-bottom: 10px; font-weight: 600; }
-  .tag-list { display: flex; gap: 8px; flex-wrap: wrap; }
-  .tag-chip { padding: 6px 14px; background: #f0f0f0; border-radius: 16px; font-size: 12px; color: #555; cursor: pointer; transition: all 0.2s; border: none; }
-  .tag-chip:hover, .tag-chip:active { background: #667eea; color: white; }
-  .category-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 0 16px; margin-bottom: 12px; }
-  .category-card { background: white; border-radius: 16px; padding: 16px 8px; text-align: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: transform 0.2s; }
-  .category-card:active { transform: scale(0.95); }
-  .category-card .emoji { font-size: 28px; margin-bottom: 6px; }
-  .category-card .name { font-size: 13px; font-weight: 600; color: #333; }
-  .tool-section { background: white; border-radius: 16px; margin: 0 16px 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-  .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-  .section-title { font-size: 16px; font-weight: 700; color: #333; }
-  .section-more { font-size: 12px; color: #667eea; cursor: pointer; }
-  .tool-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-  .tool-item { text-align: center; padding: 10px 4px; border-radius: 12px; background: #f8f9ff; cursor: pointer; transition: background 0.2s; }
-  .tool-item:active { background: #e8eaff; }
-  .tool-item .emoji { font-size: 24px; margin-bottom: 4px; }
-  .tool-item .name { font-size: 11px; color: #555; }
-  .feed-section { background: white; border-radius: 16px; margin: 0 16px 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-  .feed-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-  .refresh-btn { padding: 6px 14px; background: #f0f0f0; border: none; border-radius: 16px; font-size: 12px; cursor: pointer; color: #555; }
-  .refresh-btn:active { background: #e0e0e0; }
-  .feed-card { display: flex; gap: 12px; padding: 12px; border-radius: 12px; background: #fafafa; margin-bottom: 10px; cursor: pointer; transition: background 0.2s; }
-  .feed-card:active { background: #f0f0f0; }
-  .feed-card .cover { width: 70px; height: 70px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; }
-  .feed-card .content { flex: 1; min-width: 0; }
-  .feed-card .tags { display: flex; gap: 4px; margin-bottom: 4px; }
-  .feed-card .tag { padding: 2px 6px; border-radius: 4px; font-size: 10px; }
-  .feed-card .title { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .feed-card .desc { font-size: 12px; color: #888; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .feed-card .stats { display: flex; gap: 12px; margin-top: 6px; font-size: 12px; color: #999; }
-  .feed-card .stats span { cursor: pointer; }
-  .feed-card .stats span.liked { color: #e91e63; }
-  .community-header { background: white; padding: 12px 16px; border-bottom: 1px solid #f0f0f0; position: sticky; top: 0; z-index: 100; }
-  .community-tabs { display: flex; gap: 20px; }
-  .community-tab { padding: 8px 0; font-size: 15px; font-weight: 600; color: #999; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
-  .community-tab.active { color: #667eea; border-bottom-color: #667eea; }
-  .publish-btn { position: fixed; bottom: 80px; right: 20px; width: 56px; height: 56px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; box-shadow: 0 4px 15px rgba(102,126,234,0.4); cursor: pointer; z-index: 100; transition: transform 0.2s; }
-  .publish-btn:active { transform: scale(0.9); }
-  .post-card { background: white; padding: 16px; margin-bottom: 8px; }
-  .post-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-  .post-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px; }
-  .post-meta { flex: 1; }
-  .post-author { font-size: 14px; font-weight: 600; color: #333; }
-  .post-time { font-size: 12px; color: #999; }
-  .post-content { font-size: 14px; color: #333; line-height: 1.6; margin-bottom: 10px; }
-  .post-images { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-bottom: 10px; }
-  .post-image { aspect-ratio: 1; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-  .post-actions { display: flex; justify-content: space-around; padding-top: 10px; border-top: 1px solid #f5f5f5; }
-  .post-action { display: flex; align-items: center; gap: 4px; font-size: 13px; color: #666; cursor: pointer; padding: 6px 12px; border-radius: 8px; transition: all 0.2s; }
-  .post-action:active { background: #f0f0f0; }
-  .post-action.liked { color: #e91e63; }
-  .post-action.favorited { color: #FF9800; }
-  .tools-page { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px 16px; }
-  .tools-header { color: white; margin-bottom: 20px; }
-  .tools-header h1 { font-size: 24px; margin-bottom: 4px; }
-  .tools-header p { font-size: 14px; opacity: 0.9; }
-  .tools-category { background: white; border-radius: 16px; padding: 16px; margin-bottom: 12px; }
-  .tools-category-title { font-size: 15px; font-weight: 700; color: #333; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
-  .tools-category-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-  .profile-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px 16px 20px; color: white; text-align: center; position: relative; }
-  .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: white; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 36px; border: 4px solid rgba(255,255,255,0.3); }
-  .profile-name { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
-  .profile-bio { font-size: 13px; opacity: 0.9; margin-bottom: 16px; }
-  .profile-stats { display: flex; justify-content: center; gap: 30px; }
-  .profile-stat { text-align: center; }
-  .profile-stat .num { font-size: 20px; font-weight: 700; }
-  .profile-stat .label { font-size: 12px; opacity: 0.8; }
-  .profile-tabs { display: flex; background: white; border-bottom: 1px solid #f0f0f0; }
-  .profile-tab { flex: 1; text-align: center; padding: 14px 0; font-size: 14px; color: #666; cursor: pointer; border-bottom: 2px solid transparent; }
-  .profile-tab.active { color: #667eea; border-bottom-color: #667eea; font-weight: 600; }
-  .profile-content { padding: 16px; }
-  .checkin-page { padding: 16px; }
-  .checkin-calendar { background: white; border-radius: 16px; padding: 16px; margin-bottom: 12px; }
-  .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-  .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; }
-  .calendar-day { padding: 8px 4px; border-radius: 8px; font-size: 13px; }
-  .calendar-day.checked { background: #667eea; color: white; }
-  .calendar-day.today { border: 2px solid #667eea; }
-  .checkin-item { background: white; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
-  .checkin-item .icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
-  .checkin-item .info { flex: 1; }
-  .checkin-item .name { font-size: 15px; font-weight: 600; color: #333; }
-  .checkin-item .streak { font-size: 12px; color: #888; }
-  .checkin-btn { padding: 8px 18px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 20px; font-size: 13px; cursor: pointer; }
-  .checkin-btn.checked { background: #e0e0e0; color: #999; }
-  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: none; align-items: flex-end; justify-content: center; }
-  .modal-overlay.active { display: flex; }
-  .modal-content { background: white; width: 100%; max-height: 80vh; border-radius: 20px 20px 0 0; padding: 20px; animation: slideUp 0.3s ease; overflow-y: auto; }
-  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-  .modal-close { text-align: center; padding: 12px; color: #999; font-size: 14px; cursor: pointer; border-top: 1px solid #f0f0f0; margin-top: 10px; }
-  .publish-modal textarea { width: 100%; border: none; outline: none; font-size: 15px; resize: none; min-height: 120px; padding: 10px 0; }
-  .publish-modal .image-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
-  .publish-modal .add-image { aspect-ratio: 1; border: 2px dashed #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #999; cursor: pointer; }
-  .publish-modal .submit-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; }
-  .login-form input { width: 100%; padding: 14px 16px; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 15px; margin-bottom: 12px; outline: none; }
-  .login-form input:focus { border-color: #667eea; }
-  .login-form button { width: 100%; padding: 14px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 12px; }
-  .login-form .switch-mode { text-align: center; font-size: 13px; color: #667eea; cursor: pointer; }
-  .login-form .third-party { display: flex; justify-content: center; gap: 20px; margin-top: 20px; }
-  .login-form .third-btn { width: 44px; height: 44px; border-radius: 50%; border: 1px solid #e0e0e0; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; background: white; }
-  .search-results { padding: 16px; }
-  .search-result-item { background: white; border-radius: 12px; padding: 14px; margin-bottom: 10px; cursor: pointer; }
-  .search-result-item .title { font-size: 15px; font-weight: 600; color: #333; margin-bottom: 4px; }
-  .search-result-item .desc { font-size: 13px; color: #888; }
-  .health-form { background: white; border-radius: 16px; padding: 20px; margin: 16px; }
-  .health-form .form-group { margin-bottom: 16px; }
-  .health-form label { display: block; font-size: 14px; font-weight: 600; color: #555; margin-bottom: 6px; }
-  .health-form input, .health-form select { width: 100%; padding: 12px 14px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 14px; outline: none; }
-  .health-form input:focus, .health-form select:focus { border-color: #667eea; }
-  .health-result { background: white; border-radius: 16px; padding: 20px; margin: 16px; text-align: center; }
-  .health-result .bmi-num { font-size: 48px; font-weight: 700; color: #667eea; }
-  .health-result .bmi-label { font-size: 14px; color: #888; margin-bottom: 16px; }
-  .health-result .plan-card { background: #f8f9ff; border-radius: 12px; padding: 14px; margin-top: 12px; text-align: left; }
-  .interest-card { background: white; border-radius: 16px; padding: 16px; margin: 0 16px 12px; display: flex; gap: 14px; }
-  .interest-card .cover { width: 80px; height: 80px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 36px; flex-shrink: 0; }
-  .interest-card .info { flex: 1; }
-  .interest-card .title { font-size: 16px; font-weight: 700; color: #333; margin-bottom: 4px; }
-  .interest-card .tags { display: flex; gap: 6px; margin-bottom: 8px; }
-  .interest-card .tag { padding: 2px 8px; border-radius: 4px; font-size: 11px; background: #f0f0f0; color: #666; }
-  .interest-card .desc { font-size: 13px; color: #888; line-height: 1.4; }
-  .interest-card .add-btn { padding: 6px 16px; background: #667eea; color: white; border: none; border-radius: 16px; font-size: 12px; cursor: pointer; margin-top: 8px; }
-  .breath-circle { width: 200px; height: 200px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); margin: 40px auto; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; font-weight: 600; animation: breathe 8s infinite ease-in-out; }
-  @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.3); opacity: 1; } }
-  .snack-form { background: white; border-radius: 16px; padding: 20px; margin: 16px; }
-  .snack-list { padding: 0 16px; }
-  .snack-item { background: white; border-radius: 12px; padding: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-  .snack-item .name { font-size: 15px; font-weight: 600; }
-  .snack-item .cal { font-size: 14px; color: #f57c00; font-weight: 600; }
-  .snack-chart { background: white; border-radius: 16px; padding: 20px; margin: 16px; }
-  .chart-bar { height: 24px; background: #f0f0f0; border-radius: 12px; overflow: hidden; margin: 8px 0; }
-  .chart-bar-fill { height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); border-radius: 12px; transition: width 0.5s ease; }
-  .quiz-card { background: white; border-radius: 16px; padding: 20px; margin: 16px; }
-  .quiz-question { font-size: 18px; font-weight: 700; color: #333; margin-bottom: 20px; }
-  .quiz-option { padding: 14px 16px; border: 2px solid #e0e0e0; border-radius: 12px; margin-bottom: 10px; cursor: pointer; font-size: 15px; transition: all 0.2s; }
-  .quiz-option:hover { border-color: #667eea; background: #f8f9ff; }
-  .quiz-option.selected { border-color: #667eea; background: #f8f9ff; color: #667eea; font-weight: 600; }
-  .quiz-progress { height: 4px; background: #f0f0f0; border-radius: 2px; margin-bottom: 20px; }
-  .quiz-progress-fill { height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); border-radius: 2px; transition: width 0.3s ease; }
-  .fact-card { background: white; border-radius: 16px; padding: 24px 20px; margin: 16px; text-align: center; }
-  .fact-card .emoji { font-size: 48px; margin-bottom: 16px; }
-  .fact-card .title { font-size: 18px; font-weight: 700; color: #333; margin-bottom: 12px; }
-  .fact-card .content { font-size: 15px; color: #555; line-height: 1.8; }
-  .fact-card .next-btn { margin-top: 20px; padding: 12px 32px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 24px; font-size: 15px; cursor: pointer; }
-  .btn-primary { padding: 12px 24px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 12px; font-size: 15px; cursor: pointer; }
-  .btn-secondary { padding: 10px 20px; background: #f0f0f0; color: #555; border: none; border-radius: 12px; font-size: 14px; cursor: pointer; }
-  .btn-danger { padding: 10px 20px; background: #ffebee; color: #c62828; border: none; border-radius: 12px; font-size: 14px; cursor: pointer; }
-  .setting-item { background: white; border-radius: 12px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-  .setting-item .left { display: flex; align-items: center; gap: 12px; }
-  .setting-item .icon { font-size: 20px; }
-  .setting-item .info { flex: 1; }
-  .setting-item .title { font-size: 15px; font-weight: 600; color: #333; }
-  .setting-item .desc { font-size: 12px; color: #888; }
-  .toggle-switch { width: 50px; height: 28px; background: #e0e0e0; border-radius: 14px; position: relative; cursor: pointer; transition: background 0.3s; }
-  .toggle-switch.active { background: #667eea; }
-  .toggle-switch::after { content: ''; position: absolute; width: 24px; height: 24px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: left 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-  .toggle-switch.active::after { left: 24px; }
-  .comment-item { background: white; border-radius: 12px; padding: 14px; margin-bottom: 10px; }
-  .comment-item .header { display: flex; justify-content: space-between; margin-bottom: 6px; }
-  .comment-item .author { font-weight: 600; font-size: 14px; }
-  .comment-item .time { font-size: 12px; color: #999; }
-  .comment-item .content { font-size: 14px; color: #555; line-height: 1.5; }
-  .comment-item .target { font-size: 12px; color: #667eea; margin-top: 6px; }
-  .favorite-item { background: white; border-radius: 12px; padding: 14px; margin-bottom: 10px; display: flex; gap: 12px; align-items: center; }
-  .favorite-item .emoji { font-size: 28px; }
-  .favorite-item .info { flex: 1; }
-  .favorite-item .title { font-size: 15px; font-weight: 600; }
-  .favorite-item .desc { font-size: 13px; color: #888; }
-  .edit-nick-modal input { width: 100%; padding: 14px 16px; border: 1px solid #e0e0e0; border-radius: 12px; font-size: 16px; margin-bottom: 16px; outline: none; }
-  .edit-nick-modal input:focus { border-color: #667eea; }
-  .profile-menu { position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.2); border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 13px; }
-  .profile-menu-dropdown { position: absolute; top: 45px; right: 16px; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); overflow: hidden; display: none; min-width: 140px; }
-  .profile-menu-dropdown.active { display: block; }
-  .profile-menu-dropdown .menu-item { padding: 12px 16px; font-size: 14px; cursor: pointer; transition: background 0.2s; }
-  .profile-menu-dropdown .menu-item:hover { background: #f5f5f5; }
-  .profile-menu-dropdown .menu-item.danger { color: #c62828; }
-  @media (min-width: 768px) {
-    body { max-width: 430px; margin: 0 auto; border-left: 1px solid #e0e0e0; border-right: 1px solid #e0e0e0; }
-    .bottom-nav { max-width: 430px; left: 50%; transform: translateX(-50%); }
-    .publish-btn { right: calc(50% - 195px); }
-  }
+:root {
+  --primary: #667eea; --secondary: #764ba2;
+  --gradient: linear-gradient(135deg, #667eea, #764ba2);
+  --card-radius: 16px; --shadow: 0 2px 8px rgba(0,0,0,0.06);
+  --bg: #f5f6fa; --card-bg: #ffffff; --text: #333333;
+  --text-light: #666666; --text-muted: #999999; --border: #e8e8e8;
+  --success: #52c41a; --danger: #ff4d4f; --warning: #faad14;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg); color: var(--text); height: 100%; overflow-x: hidden; -webkit-tap-highlight-color: transparent;
+}
+body { max-width: 430px; margin: 0 auto; position: relative; background: var(--bg); }
+@media (min-width: 768px) {
+  body { max-width: 430px; margin: 0 auto; box-shadow: 0 0 30px rgba(0,0,0,0.08); min-height: 100vh; }
+}
+.page { display: none; padding-bottom: 80px; min-height: 100vh; animation: fadeIn 0.3s ease; }
+.page.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.bottom-nav {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 430px; background: #fff;
+  display: flex; justify-content: space-around; align-items: center;
+  padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; border-top: 1px solid var(--border);
+}
+.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 4px 0; cursor: pointer; transition: all 0.2s; color: var(--text-muted); font-size: 11px; border: none; background: none; }
+.nav-item .nav-icon { font-size: 22px; line-height: 1; }
+.nav-item.active { color: var(--primary); font-weight: 600; }
+.nav-item:active { transform: scale(0.92); }
+.header-gradient {
+  background: var(--gradient); color: white; padding: 16px;
+  border-radius: 0 0 24px 24px; position: relative; overflow: hidden;
+}
+.header-gradient::after {
+  content: ''; position: absolute; top: -50%; right: -20%;
+  width: 200px; height: 200px; background: rgba(255,255,255,0.08); border-radius: 50%;
+}
+.header-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.search-box { flex: 1; position: relative; }
+.search-box input {
+  width: 100%; padding: 10px 14px 10px 38px; border: none; border-radius: 24px;
+  background: rgba(255,255,255,0.25); color: white; font-size: 14px; outline: none; backdrop-filter: blur(10px);
+}
+.search-box input::placeholder { color: rgba(255,255,255,0.7); }
+.search-box .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 16px; opacity: 0.7; }
+.login-btn, .user-nickname {
+  background: rgba(255,255,255,0.25); border: none; color: white; padding: 8px 14px;
+  border-radius: 20px; font-size: 13px; cursor: pointer; white-space: nowrap; backdrop-filter: blur(10px);
+}
+.hero-title { font-size: 24px; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+.hero-subtitle { font-size: 13px; opacity: 0.9; line-height: 1.5; }
+.card { background: var(--card-bg); border-radius: var(--card-radius); box-shadow: var(--shadow); padding: 16px; margin: 12px 16px; transition: transform 0.2s, box-shadow 0.2s; }
+.card:active { transform: scale(0.98); }
+.card-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+.tag { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; background: #f0f0f5; color: var(--text-light); margin: 4px 4px 4px 0; cursor: pointer; transition: all 0.2s; border: none; }
+.tag:hover, .tag.active { background: var(--gradient); color: white; }
+.feed-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px; }
+.feed-card { background: var(--card-bg); border-radius: var(--card-radius); box-shadow: var(--shadow); overflow: hidden; transition: transform 0.2s; }
+.feed-card:active { transform: scale(0.97); }
+.feed-cover { height: 100px; display: flex; align-items: center; justify-content: center; font-size: 48px; background: linear-gradient(135deg, #f5f7fa, #e4e8ec); }
+.feed-body { padding: 12px; }
+.feed-tags { margin-bottom: 6px; }
+.feed-tag { display: inline-block; padding: 2px 8px; border-radius: 8px; font-size: 10px; background: #f0f0f5; color: var(--text-light); margin-right: 4px; }
+.feed-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.feed-desc { font-size: 12px; color: var(--text-light); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 8px; }
+.feed-actions { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--text-muted); }
+.feed-actions button { background: none; border: none; cursor: pointer; font-size: 16px; padding: 4px; transition: transform 0.2s; }
+.feed-actions button:active { transform: scale(1.3); }
+.tool-section { margin: 16px; }
+.tool-section-title { font-size: 15px; font-weight: 600; margin-bottom: 12px; padding-left: 8px; border-left: 3px solid var(--primary); color: var(--text); }
+.tool-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.tool-card { background: var(--card-bg); border-radius: var(--card-radius); box-shadow: var(--shadow); padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s; border: none; width: 100%; }
+.tool-card:active { transform: scale(0.95); }
+.tool-card .tool-icon { font-size: 32px; margin-bottom: 8px; }
+.tool-card .tool-name { font-size: 14px; font-weight: 600; }
+.tool-card .tool-desc { font-size: 11px; color: var(--text-light); margin-top: 4px; }
+.community-tabs { display: flex; gap: 0; margin: 0 16px; border-bottom: 1px solid var(--border); }
+.community-tab { flex: 1; padding: 12px; text-align: center; font-size: 14px; cursor: pointer; border: none; background: none; position: relative; color: var(--text-light); }
+.community-tab.active { color: var(--primary); font-weight: 600; }
+.community-tab.active::after { content: ''; position: absolute; bottom: 0; left: 30%; right: 30%; height: 3px; background: var(--gradient); border-radius: 2px; }
+.post-card { background: var(--card-bg); border-radius: var(--card-radius); box-shadow: var(--shadow); margin: 12px 16px; padding: 16px; }
+.post-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.post-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; background: linear-gradient(135deg, #f5f7fa, #e4e8ec); }
+.post-meta { flex: 1; }
+.post-author { font-size: 14px; font-weight: 600; }
+.post-time { font-size: 11px; color: var(--text-muted); }
+.post-content { font-size: 14px; line-height: 1.6; margin-bottom: 10px; }
+.post-images { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; }
+.post-img { aspect-ratio: 1; background: linear-gradient(135deg, #f5f7fa, #e4e8ec); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+.post-actions { display: flex; gap: 20px; padding-top: 10px; border-top: 1px solid var(--border); }
+.post-action { display: flex; align-items: center; gap: 4px; font-size: 13px; color: var(--text-light); cursor: pointer; background: none; border: none; }
+.post-action.liked { color: var(--danger); }
+.fab { position: fixed; bottom: 80px; right: 20px; width: 52px; height: 52px; border-radius: 50%; background: var(--gradient); color: white; border: none; font-size: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(102,126,234,0.4); cursor: pointer; z-index: 90; transition: transform 0.2s; }
+.fab:active { transform: scale(0.9); }
+@media (min-width: 768px) { .fab { right: calc(50% - 195px); } }
+.calendar-header { text-align: center; padding: 16px; font-size: 18px; font-weight: 600; }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; padding: 0 16px 16px; text-align: center; }
+.calendar-day-name { font-size: 12px; color: var(--text-muted); padding: 8px 0; }
+.calendar-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 14px; cursor: pointer; transition: all 0.2s; }
+.calendar-day.checked { background: var(--gradient); color: white; font-weight: 600; }
+.calendar-day.today { border: 2px solid var(--primary); }
+.calendar-day.other-month { color: var(--text-muted); opacity: 0.5; }
+.checkin-list { padding: 0 16px; }
+.checkin-item { display: flex; align-items: center; gap: 12px; background: var(--card-bg); border-radius: var(--card-radius); box-shadow: var(--shadow); padding: 14px 16px; margin-bottom: 10px; }
+.checkin-icon { font-size: 28px; }
+.checkin-info { flex: 1; }
+.checkin-name { font-size: 15px; font-weight: 600; }
+.checkin-streak { font-size: 12px; color: var(--text-light); }
+.checkin-btn { padding: 8px 18px; border-radius: 20px; border: none; font-size: 13px; cursor: pointer; transition: all 0.2s; font-weight: 600; }
+.checkin-btn.unchecked { background: var(--gradient); color: white; }
+.checkin-btn.checked { background: #e8e8e8; color: var(--text-muted); }
+.add-checkin-btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: calc(100% - 32px); margin: 0 16px 16px; padding: 14px; border: 2px dashed var(--border); border-radius: var(--card-radius); background: none; color: var(--text-light); font-size: 14px; cursor: pointer; }
+.profile-header { background: var(--gradient); color: white; padding: 24px 16px; border-radius: 0 0 24px 24px; text-align: center; position: relative; }
+.profile-avatar { width: 72px; height: 72px; border-radius: 50%; background: rgba(255,255,255,0.3); margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 40px; backdrop-filter: blur(10px); }
+.profile-name { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+.profile-bio { font-size: 13px; opacity: 0.85; margin-bottom: 16px; }
+.profile-stats { display: flex; justify-content: center; gap: 32px; }
+.profile-stat { text-align: center; }
+.profile-stat-num { font-size: 18px; font-weight: 700; }
+.profile-stat-label { font-size: 11px; opacity: 0.8; }
+.settings-btn { position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.25); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.profile-tabs { display: flex; gap: 0; margin: 0 16px; border-bottom: 1px solid var(--border); }
+.profile-tab { flex: 1; padding: 12px 4px; text-align: center; font-size: 13px; cursor: pointer; border: none; background: none; color: var(--text-light); white-space: nowrap; }
+.profile-tab.active { color: var(--primary); font-weight: 600; }
+.profile-tab.active::after { content: ''; display: block; margin: 8px auto 0; width: 20px; height: 3px; background: var(--gradient); border-radius: 2px; }
+.badge-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 16px; }
+.badge-item { text-align: center; padding: 16px 8px; background: var(--card-bg); border-radius: var(--card-radius); box-shadow: var(--shadow); }
+.badge-item .badge-icon { font-size: 36px; margin-bottom: 6px; }
+.badge-item .badge-name { font-size: 13px; font-weight: 600; }
+.badge-item .badge-desc { font-size: 11px; color: var(--text-light); }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: flex-end; justify-content: center; z-index: 200; opacity: 0; transition: opacity 0.3s; }
+.modal-overlay.show { display: flex; opacity: 1; }
+.modal-content { background: white; width: 100%; max-width: 400px; border-radius: 24px 24px 0 0; padding: 20px; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1); max-height: 85vh; overflow-y: auto; }
+@media (min-width: 768px) { .modal-overlay { align-items: center; } .modal-content { border-radius: 20px; transform: translateY(20px) scale(0.95); max-height: 80vh; } }
+.modal-overlay.show .modal-content { transform: translateY(0); }
+@media (min-width: 768px) { .modal-overlay.show .modal-content { transform: translateY(0) scale(1); } }
+.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.modal-title { font-size: 18px; font-weight: 600; }
+.modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-muted); width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
+.form-group { margin-bottom: 14px; }
+.form-label { display: block; font-size: 13px; color: var(--text-light); margin-bottom: 6px; }
+.form-input { width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; font-size: 14px; outline: none; transition: border-color 0.2s; font-family: inherit; }
+.form-input:focus { border-color: var(--primary); }
+textarea.form-input { resize: vertical; min-height: 80px; }
+.btn-primary { width: 100%; padding: 14px; border: none; border-radius: 12px; background: var(--gradient); color: white; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
+.btn-primary:active { opacity: 0.85; }
+.btn-secondary { width: 100%; padding: 14px; border: none; border-radius: 12px; background: #f0f0f5; color: var(--text); font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+.switch-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.switch-row:last-child { border-bottom: none; }
+.switch-label { font-size: 14px; }
+.switch { position: relative; width: 48px; height: 28px; cursor: pointer; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch-slider { position: absolute; inset: 0; background: #ccc; border-radius: 28px; transition: 0.3s; }
+.switch-slider::before { content: ''; position: absolute; height: 22px; width: 22px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+.switch input:checked + .switch-slider { background: var(--primary); }
+.switch input:checked + .switch-slider::before { transform: translateX(20px); }
+.toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); background: rgba(0,0,0,0.8); color: white; padding: 14px 28px; border-radius: 12px; font-size: 14px; z-index: 300; opacity: 0; pointer-events: none; transition: all 0.3s; white-space: nowrap; max-width: 80%; text-align: center; }
+.toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.dropdown-menu { position: absolute; top: 50px; right: 16px; background: white; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.15); padding: 8px 0; min-width: 140px; z-index: 50; display: none; }
+.dropdown-menu.show { display: block; }
+.dropdown-item { padding: 10px 16px; font-size: 14px; cursor: pointer; border: none; background: none; width: 100%; text-align: left; display: flex; align-items: center; gap: 8px; }
+.dropdown-item:active { background: #f5f5f5; }
+.crud-list { padding: 0 16px; }
+.crud-item { background: var(--card-bg); border-radius: var(--card-radius); box-shadow: var(--shadow); padding: 14px 16px; margin-bottom: 10px; }
+.crud-item-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.crud-item-emoji { font-size: 24px; }
+.crud-item-title { font-size: 15px; font-weight: 600; flex: 1; }
+.crud-item-actions { display: flex; gap: 8px; }
+.crud-item-actions button { background: none; border: none; font-size: 16px; cursor: pointer; padding: 4px; }
+.crud-item-desc { font-size: 13px; color: var(--text-light); line-height: 1.5; }
+.crud-add-btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: calc(100% - 32px); margin: 0 16px 16px; padding: 14px; border: 2px dashed var(--border); border-radius: var(--card-radius); background: none; color: var(--text-light); font-size: 14px; cursor: pointer; }
+.search-header { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--gradient); }
+.search-header input { flex: 1; padding: 10px 14px; border: none; border-radius: 20px; font-size: 14px; outline: none; }
+.search-header button { background: none; border: none; color: white; font-size: 14px; cursor: pointer; }
+.search-results { padding: 16px; }
+.search-group { margin-bottom: 20px; }
+.search-group-title { font-size: 14px; font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.search-result-item { background: var(--card-bg); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+.search-result-emoji { font-size: 24px; }
+.search-result-info { flex: 1; }
+.search-result-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.search-result-desc { font-size: 12px; color: var(--text-light); }
+.search-result-tag { font-size: 10px; padding: 2px 8px; border-radius: 8px; color: white; white-space: nowrap; }
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+.empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+.breath-container { display: flex; flex-direction: column; align-items: center; padding: 30px; }
+.breath-circle { width: 160px; height: 160px; border-radius: 50%; background: var(--gradient); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; font-weight: 600; margin-bottom: 20px; animation: breathe 19s infinite; }
+@keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.7; } 21% { transform: scale(1.4); opacity: 1; } 57% { transform: scale(1.4); opacity: 1; } 78% { transform: scale(1); opacity: 0.7; } }
+.breath-text { font-size: 16px; color: var(--text-light); }
+.bmi-result { background: var(--gradient); color: white; border-radius: var(--card-radius); padding: 20px; margin: 16px; text-align: center; }
+.bmi-number { font-size: 36px; font-weight: 700; }
+.bmi-label { font-size: 14px; opacity: 0.9; margin-top: 4px; }
+.bmi-advice { font-size: 13px; margin-top: 12px; line-height: 1.6; opacity: 0.95; }
+.snack-form { display: flex; gap: 8px; padding: 0 16px; margin-bottom: 12px; }
+.snack-form input { flex: 1; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 14px; outline: none; }
+.snack-form button { padding: 10px 16px; border: none; border-radius: 10px; background: var(--gradient); color: white; font-size: 14px; cursor: pointer; }
+.snack-stats { display: flex; gap: 12px; padding: 0 16px; margin-bottom: 12px; }
+.snack-stat { flex: 1; background: var(--card-bg); border-radius: 12px; padding: 14px; text-align: center; box-shadow: var(--shadow); }
+.snack-stat-num { font-size: 20px; font-weight: 700; color: var(--primary); }
+.snack-stat-label { font-size: 11px; color: var(--text-light); margin-top: 4px; }
+.interest-filters { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 16px; margin-bottom: 12px; }
+.interest-grid { display: grid; grid-template-columns: 1fr; gap: 10px; padding: 0 16px; }
+.interest-card { background: var(--card-bg); border-radius: var(--card-radius); box-shadow: var(--shadow); padding: 14px 16px; display: flex; align-items: flex-start; gap: 12px; }
+.interest-emoji { font-size: 36px; }
+.interest-info { flex: 1; }
+.interest-name { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+.interest-cat { font-size: 11px; color: var(--primary); margin-bottom: 4px; }
+.interest-desc { font-size: 12px; color: var(--text-light); line-height: 1.4; }
+.interest-add { padding: 6px 14px; border: none; border-radius: 16px; background: var(--gradient); color: white; font-size: 12px; cursor: pointer; white-space: nowrap; }
+.interest-add.added { background: #e8e8e8; color: var(--text-muted); }
+.quiz-container { padding: 16px; }
+.quiz-progress { height: 4px; background: #e8e8e8; border-radius: 2px; margin-bottom: 20px; overflow: hidden; }
+.quiz-progress-bar { height: 100%; background: var(--gradient); border-radius: 2px; transition: width 0.3s; }
+.quiz-question { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+.quiz-options { display: flex; flex-direction: column; gap: 10px; }
+.quiz-option { padding: 14px 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--card-bg); font-size: 14px; cursor: pointer; text-align: left; transition: all 0.2s; }
+.quiz-option:hover { border-color: var(--primary); }
+.quiz-option.selected { border-color: var(--primary); background: rgba(102,126,234,0.08); }
+.quiz-result { text-align: center; padding: 20px; }
+.quiz-result-emoji { font-size: 48px; margin-bottom: 10px; }
+.quiz-result-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+.fact-card { background: var(--card-bg); border-radius: var(--card-radius); box-shadow: var(--shadow); padding: 20px; margin: 16px; text-align: center; }
+.fact-emoji { font-size: 40px; margin-bottom: 10px; }
+.fact-text { font-size: 15px; line-height: 1.7; margin-bottom: 16px; }
+.puzzle-card { background: var(--card-bg); border-radius: var(--card-radius); box-shadow: var(--shadow); padding: 20px; margin: 16px; }
+.puzzle-question { font-size: 15px; font-weight: 600; margin-bottom: 12px; line-height: 1.6; }
+.puzzle-answer { padding: 12px; background: #f8f9fa; border-radius: 10px; font-size: 14px; color: var(--text-light); line-height: 1.6; display: none; }
+.puzzle-answer.show { display: block; }
+.page-header { background: var(--gradient); color: white; padding: 16px; border-radius: 0 0 24px 24px; margin-bottom: 12px; }
+.page-header-title { font-size: 20px; font-weight: 700; }
+.page-header-sub { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+.sub-page { display: none; }
+.sub-page.active { display: block; }
+.back-btn { display: inline-flex; align-items: center; gap: 4px; padding: 8px 12px; border: none; background: rgba(255,255,255,0.2); color: white; border-radius: 8px; font-size: 13px; cursor: pointer; margin-bottom: 8px; }
+.fav-item { display: flex; align-items: center; gap: 12px; background: var(--card-bg); border-radius: var(--card-radius); box-shadow: var(--shadow); padding: 12px 16px; margin: 0 16px 10px; }
+.fav-emoji { font-size: 28px; }
+.fav-info { flex: 1; }
+.fav-title { font-size: 14px; font-weight: 600; }
+.fav-desc { font-size: 12px; color: var(--text-light); }
+.comment-item { background: var(--card-bg); border-radius: var(--card-radius); box-shadow: var(--shadow); padding: 12px 16px; margin: 0 16px 10px; }
+.comment-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.comment-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #f5f7fa, #e4e8ec); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.comment-author { font-size: 13px; font-weight: 600; }
+.comment-time { font-size: 11px; color: var(--text-muted); }
+.comment-text { font-size: 13px; line-height: 1.5; color: var(--text); }
+.link-btn { width: 100%; padding: 12px; text-align: left; background: none; border: none; border-bottom: 1px solid var(--border); font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+.link-btn:last-child { border-bottom: none; }
+.link-btn:active { background: #f5f5f5; }
+.post-textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 12px; font-size: 14px; resize: vertical; min-height: 100px; font-family: inherit; outline: none; }
+.post-textarea:focus { border-color: var(--primary); }
+.post-images-placeholder { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
+.post-img-placeholder { aspect-ratio: 1; background: #f5f5f5; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; border: 2px dashed #ddd; }
+.history-list { padding: 0 16px; }
+.history-date { font-size: 12px; color: var(--text-muted); margin: 8px 0 4px; }
+.history-items { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.history-tag { padding: 4px 10px; border-radius: 12px; font-size: 12px; background: rgba(102,126,234,0.1); color: var(--primary); }
+.health-form { padding: 0 16px; }
+.health-form .form-group { margin-bottom: 12px; }
 </style>
 <base target="_blank">
 </head>
 <body>
 
-<!-- ========== 首页 ========== -->
 <div id="page-home" class="page active">
-  <div class="home-header">
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-      <div style="width:40px;height:40px;background:white;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">🏠</div>
-      <div style="flex:1;">
-        <div class="home-search-box">
-          <span class="search-icon">🔍</span>
-          <input type="text" id="home-search-input" placeholder="搜索帖子、兴趣、菜谱、用户..." onkeydown="if(event.key==='Enter')doSearch(this.value)">
-        </div>
+  <div class="header-gradient">
+    <div class="header-top">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="home-search" placeholder="搜索居家灵感、健康知识..." onkeydown="if(event.key==='Enter')doSearch(this.value)">
       </div>
-      <button id="login-btn-header" onclick="showLogin()" style="padding:8px 16px;background:white;color:#667eea;border:none;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;">登录</button>
+      <button class="login-btn" id="home-login-btn" onclick="openModal('login')">登录</button>
+    </div>
+    <div class="hero-title">🏠 居家生活助手</div>
+    <div class="hero-subtitle">发现有趣的居家生活灵感、健康知识、实用妙招，让你的每一天更精彩</div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span>🔥 热门搜索</span></div>
+    <div>
+      <button class="tag" onclick="doSearch('懒人减脂餐')">懒人减脂餐</button>
+      <button class="tag" onclick="doSearch('睡前拉伸')">睡前拉伸</button>
+      <button class="tag" onclick="doSearch('低成本爱好')">低成本爱好</button>
+      <button class="tag" onclick="doSearch('居家小妙招')">居家小妙招</button>
+      <button class="tag" onclick="doSearch('一个人在家')">一个人在家</button>
     </div>
   </div>
-  <div class="hot-tags">
-    <div class="hot-tags-title">🔥 热门搜索</div>
-    <div class="tag-list">
-      <button class="tag-chip" onclick="doSearch('懒人减脂餐')">懒人减脂餐</button>
-      <button class="tag-chip" onclick="doSearch('睡前拉伸')">睡前拉伸</button>
-      <button class="tag-chip" onclick="doSearch('低成本爱好')">低成本爱好</button>
-      <button class="tag-chip" onclick="doSearch('居家小妙招')">居家小妙招</button>
-      <button class="tag-chip" onclick="doSearch('一个人在家')">一个人在家</button>
-    </div>
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px;margin:16px 0 10px;">
+    <span style="font-size:16px;font-weight:600;">✨ 为你推荐</span>
+    <button class="tag" onclick="renderHomeFeed()" style="margin:0;">🔄 换一批</button>
   </div>
-  <div class="category-grid">
-    <div class="category-card" onclick="showPage('tools')"><div class="emoji">🎮</div><div class="name">娱乐</div></div>
-    <div class="category-card" onclick="showPage('tools')"><div class="emoji">🥗</div><div class="name">健康</div></div>
-    <div class="category-card" onclick="showPage('tools')"><div class="emoji">🍽</div><div class="name">饮食</div></div>
-    <div class="category-card" onclick="showPage('tools')"><div class="emoji">😴</div><div class="name">睡觉</div></div>
+  <div id="home-feed" class="feed-grid"></div>
+</div>
+
+<div id="page-tools" class="page">
+  <div class="page-header">
+    <div class="page-header-title">🧰 功能工具</div>
+    <div class="page-header-sub">健康生活 · 兴趣探索 · 实用工具</div>
   </div>
   <div class="tool-section">
-    <div class="section-header">
-      <span class="section-title">🧰 功能工具</span>
-      <span class="section-more" onclick="showPage('tools')">查看全部 ></span>
-    </div>
+    <div class="tool-section-title">健康生活</div>
     <div class="tool-grid">
-      <div class="tool-item" onclick="showTool('health')"><div class="emoji">🩺</div><div class="name">健康专家</div></div>
-      <div class="tool-item" onclick="showPage('checkin')"><div class="emoji">✅</div><div class="name">打卡中心</div></div>
-      <div class="tool-item" onclick="showTool('snack')"><div class="emoji">🍿</div><div class="name">零食管控</div></div>
-      <div class="tool-item" onclick="showTool('interest')"><div class="emoji">🎯</div><div class="name">兴趣推荐</div></div>
-      <div class="tool-item" onclick="showTool('quiz')"><div class="emoji">❓</div><div class="name">自测问答</div></div>
-      <div class="tool-item" onclick="showTool('breath')"><div class="emoji">🧘</div><div class="name">放松指南</div></div>
-      <div class="tool-item" onclick="showTool('fact')"><div class="emoji">💡</div><div class="name">冷知识</div></div>
-      <div class="tool-item" onclick="showTool('challenge')"><div class="emoji">🏆</div><div class="name">小挑战</div></div>
+      <button class="tool-card" onclick="showToolPage('health')"><div class="tool-icon">🩺</div><div class="tool-name">健康专家</div><div class="tool-desc">BMI & 饮食推荐</div></button>
+      <button class="tool-card" onclick="switchTab('checkin')"><div class="tool-icon">✅</div><div class="tool-name">打卡中心</div><div class="tool-desc">习惯养成追踪</div></button>
+      <button class="tool-card" onclick="showToolPage('snacks')"><div class="tool-icon">🍿</div><div class="tool-name">零食管控</div><div class="tool-desc">热量摄入记录</div></button>
+      <button class="tool-card" onclick="showToolPage('breath')"><div class="tool-icon">🧘</div><div class="tool-name">放松指南</div><div class="tool-desc">4-7-8呼吸法</div></button>
     </div>
   </div>
-  <div class="feed-section">
-    <div class="feed-header">
-      <span class="section-title">✨ 为你推荐</span>
-      <button class="refresh-btn" onclick="refreshFeed()">🔄 换一批</button>
+  <div class="tool-section">
+    <div class="tool-section-title">兴趣探索</div>
+    <div class="tool-grid">
+      <button class="tool-card" onclick="showToolPage('interest')"><div class="tool-icon">🎯</div><div class="tool-name">兴趣推荐</div><div class="tool-desc">发现你的热爱</div></button>
+      <button class="tool-card" onclick="showToolPage('quiz')"><div class="tool-icon">❓</div><div class="tool-name">自测问答</div><div class="tool-desc">3题测兴趣</div></button>
+      <button class="tool-card" onclick="showToolPage('facts')"><div class="tool-icon">💡</div><div class="tool-name">冷知识</div><div class="tool-desc">每日涨知识</div></button>
+      <button class="tool-card" onclick="showToolPage('challenges')"><div class="tool-icon">🏆</div><div class="tool-name">小挑战</div><div class="tool-desc">挑战自我CRUD</div></button>
     </div>
-    <div id="feed-container"></div>
+  </div>
+  <div class="tool-section">
+    <div class="tool-section-title">实用工具</div>
+    <div class="tool-grid">
+      <button class="tool-card" onclick="showToolPage('remedy')"><div class="tool-icon">🛡️</div><div class="tool-name">补救方案</div><div class="tool-desc">生活急救指南</div></button>
+      <button class="tool-card" onclick="showToolPage('faq')"><div class="tool-icon">📚</div><div class="tool-name">常见问题</div><div class="tool-desc">生活百科问答</div></button>
+      <button class="tool-card" onclick="showToolPage('puzzle')"><div class="tool-icon">🧩</div><div class="tool-name">智力题</div><div class="tool-desc">动动脑筋</div></button>
+      <button class="tool-card" onclick="showToolPage('hacks')"><div class="tool-icon">🔧</div><div class="tool-name">居家妙招</div><div class="tool-desc">生活小技巧</div></button>
+    </div>
   </div>
 </div>
 
-<!-- ========== 社区页 ========== -->
+<div id="tool-subpages" class="sub-page"></div>
+
 <div id="page-community" class="page">
-  <div class="community-header">
-    <div class="community-tabs">
-      <div class="community-tab active" onclick="switchCommunityTab('following',this)">关注</div>
-      <div class="community-tab" onclick="switchCommunityTab('hot',this)">热门</div>
-    </div>
+  <div class="header-gradient" style="border-radius:0;">
+    <div class="hero-title">💬 社区</div>
+    <div class="hero-subtitle">分享生活，发现精彩</div>
   </div>
-  <div id="posts-container"></div>
-  <div class="publish-btn" onclick="showPublishModal()">+</div>
+  <div class="community-tabs">
+    <button class="community-tab active" onclick="switchCommunityTab(this,'follow')">关注</button>
+    <button class="community-tab" onclick="switchCommunityTab(this,'hot')">热门</button>
+  </div>
+  <div id="community-posts"></div>
+  <button class="fab" onclick="openPostModal()">+</button>
 </div>
 
-<!-- ========== 功能页 ========== -->
-<div id="page-tools" class="page tools-page">
-  <div class="tools-header"><h1>🧰 功能工具</h1><p>发现更多居家生活好帮手</p></div>
-  <div class="tools-category">
-    <div class="tools-category-title">🥗 健康生活</div>
-    <div class="tools-category-grid">
-      <div class="tool-item" onclick="showTool('health')"><div class="emoji">🩺</div><div class="name">健康专家</div></div>
-      <div class="tool-item" onclick="showPage('checkin')"><div class="emoji">✅</div><div class="name">打卡中心</div></div>
-      <div class="tool-item" onclick="showTool('snack')"><div class="emoji">🍿</div><div class="name">零食管控</div></div>
-      <div class="tool-item" onclick="showTool('breath')"><div class="emoji">🧘</div><div class="name">放松指南</div></div>
-    </div>
+<div id="page-checkin" class="page">
+  <div class="header-gradient" style="border-radius:0 0 24px 24px;">
+    <div class="hero-title">✅ 每日打卡</div>
+    <div class="hero-subtitle">坚持就是胜利，养成好习惯</div>
   </div>
-  <div class="tools-category">
-    <div class="tools-category-title">🎯 兴趣探索</div>
-    <div class="tools-category-grid">
-      <div class="tool-item" onclick="showTool('interest')"><div class="emoji">🎯</div><div class="name">兴趣推荐</div></div>
-      <div class="tool-item" onclick="showTool('quiz')"><div class="emoji">❓</div><div class="name">自测问答</div></div>
-      <div class="tool-item" onclick="showTool('fact')"><div class="emoji">💡</div><div class="name">冷知识</div></div>
-      <div class="tool-item" onclick="showTool('challenge')"><div class="emoji">🏆</div><div class="name">小挑战</div></div>
-    </div>
-  </div>
-  <div class="tools-category">
-    <div class="tools-category-title">🛠 实用工具</div>
-    <div class="tools-category-grid">
-      <div class="tool-item" onclick="showTool('remedy')"><div class="emoji">🛡️</div><div class="name">补救方案</div></div>
-      <div class="tool-item" onclick="showTool('faq')"><div class="emoji">📚</div><div class="name">常见问题</div></div>
-      <div class="tool-item" onclick="showTool('puzzle')"><div class="emoji">🧩</div><div class="name">智力题</div></div>
-      <div class="tool-item" onclick="showTool('hack')"><div class="emoji">🔧</div><div class="name">居家妙招</div></div>
-    </div>
-  </div>
+  <div class="calendar-header" id="calendar-month"></div>
+  <div class="calendar-grid" id="calendar-grid"></div>
+  <div class="checkin-list" id="checkin-list"></div>
+  <button class="add-checkin-btn" onclick="addCustomCheckin()">➕ 新建打卡项目</button>
 </div>
 
-<!-- ========== 打卡页 ========== -->
-<div id="page-checkin" class="page checkin-page">
-  <div style="background:linear-gradient(135deg,#667eea,#764ba2);padding:20px 16px;color:white;margin:-16px -16px 16px;">
-    <h2 style="font-size:20px;">✅ 打卡中心</h2>
-    <p style="font-size:13px;opacity:0.9;">坚持打卡，养成好习惯</p>
-  </div>
-  <div class="checkin-calendar">
-    <div class="calendar-header">
-      <span style="font-weight:700;">📅 本月打卡</span>
-      <span style="color:#667eea;font-weight:600;" id="current-month"></span>
-    </div>
-    <div class="calendar-grid" id="calendar-grid"></div>
-  </div>
-  <div style="padding:0 16px;margin-bottom:12px;">
-    <span style="font-size:16px;font-weight:700;">📋 我的打卡项目</span>
-    <button onclick="addCheckinItem()" style="float:right;padding:6px 14px;background:#667eea;color:white;border:none;border-radius:16px;font-size:12px;cursor:pointer;">+ 新建</button>
-  </div>
-  <div id="checkin-items"></div>
-</div>
-
-<!-- ========== 个人主页 ========== -->
 <div id="page-profile" class="page">
   <div class="profile-header">
-    <div class="profile-menu" onclick="toggleProfileMenu()">⚙️ 设置</div>
-    <div class="profile-menu-dropdown" id="profile-menu-dropdown">
-      <div class="menu-item" onclick="showEditNickname()">✏️ 修改昵称</div>
-      <div class="menu-item" onclick="showPrivacySettings()">🔒 隐私设置</div>
-      <div class="menu-item danger" onclick="doLogout()">🚪 退出登录</div>
+    <button class="settings-btn" onclick="toggleDropdown()">⚙️</button>
+    <div class="dropdown-menu" id="settings-dropdown">
+      <button class="dropdown-item" onclick="openModal('editName');toggleDropdown()">✏️ 修改昵称</button>
+      <button class="dropdown-item" onclick="openModal('privacy');toggleDropdown()">🔒 隐私设置</button>
+      <button class="dropdown-item" onclick="logout();toggleDropdown()">🚪 退出登录</button>
     </div>
-    <div class="profile-avatar" id="profile-avatar">👤</div>
+    <div class="profile-avatar" id="profile-avatar">😊</div>
     <div class="profile-name" id="profile-name">点击登录</div>
-    <div class="profile-bio" id="profile-bio">记录你的居家生活</div>
+    <div class="profile-bio" id="profile-bio">记录美好生活</div>
     <div class="profile-stats">
-      <div class="profile-stat"><div class="num" id="stat-following">0</div><div class="label">关注</div></div>
-      <div class="profile-stat"><div class="num" id="stat-followers">0</div><div class="label">粉丝</div></div>
-      <div class="profile-stat"><div class="num" id="stat-likes">0</div><div class="label">获赞</div></div>
+      <div class="profile-stat"><div class="profile-stat-num" id="stat-follow">0</div><div class="profile-stat-label">关注</div></div>
+      <div class="profile-stat"><div class="profile-stat-num" id="stat-fans">0</div><div class="profile-stat-label">粉丝</div></div>
+      <div class="profile-stat"><div class="profile-stat-num" id="stat-likes">0</div><div class="profile-stat-label">获赞</div></div>
     </div>
   </div>
   <div class="profile-tabs">
-    <div class="profile-tab active" onclick="switchProfileTab('posts',this)">我的动态</div>
-    <div class="profile-tab" onclick="switchProfileTab('favorites',this)">收藏</div>
-    <div class="profile-tab" onclick="switchProfileTab('comments',this)">评论</div>
-    <div class="profile-tab" onclick="switchProfileTab('checkin',this)">打卡</div>
-    <div class="profile-tab" onclick="switchProfileTab('badges',this)">成就</div>
+    <button class="profile-tab active" onclick="switchProfileTab(this,'posts')">我的动态</button>
+    <button class="profile-tab" onclick="switchProfileTab(this,'favorites')">收藏</button>
+    <button class="profile-tab" onclick="switchProfileTab(this,'comments')">评论</button>
+    <button class="profile-tab" onclick="switchProfileTab(this,'checkin')">打卡</button>
+    <button class="profile-tab" onclick="switchProfileTab(this,'badges')">成就</button>
   </div>
-  <div class="profile-content" id="profile-content">
-    <div style="text-align:center;padding:40px 20px;color:#999;">
-      <div style="font-size:48px;margin-bottom:12px;">📝</div>
-      <div style="font-size:15px;">登录后查看你的动态</div>
-    </div>
-  </div>
+  <div id="profile-content"></div>
 </div>
 
-<!-- ========== 搜索结果页 ========== -->
 <div id="page-search" class="page">
-  <div style="background:white;padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #f0f0f0;">
-    <span style="font-size:20px;cursor:pointer;" onclick="showPage('home')">←</span>
-    <input type="text" id="search-input-page" placeholder="搜索..." style="flex:1;padding:10px 14px;border:1px solid #e0e0e0;border-radius:20px;font-size:14px;outline:none;">
-    <button onclick="doSearchPage()" style="padding:8px 16px;background:#667eea;color:white;border:none;border-radius:16px;font-size:13px;cursor:pointer;">搜索</button>
+  <div class="search-header">
+    <input type="text" id="search-input-page" placeholder="输入关键词搜索..." onkeydown="if(event.key==='Enter')doPageSearch()">
+    <button onclick="doPageSearch()">搜索</button>
+    <button onclick="showPage('home')">取消</button>
   </div>
   <div id="search-results" class="search-results"></div>
 </div>
 
-<!-- ========== 工具子页面 ========== -->
-<div id="page-tool" class="page"><div id="tool-content"></div></div>
+<nav class="bottom-nav">
+  <button class="nav-item active" data-page="home" onclick="switchTab('home')"><span class="nav-icon">🏠</span><span>首页</span></button>
+  <button class="nav-item" data-page="tools" onclick="switchTab('tools')"><span class="nav-icon">🔧</span><span>功能</span></button>
+  <button class="nav-item" data-page="community" onclick="switchTab('community')"><span class="nav-icon">💬</span><span>社区</span></button>
+  <button class="nav-item" data-page="checkin" onclick="switchTab('checkin')"><span class="nav-icon">✅</span><span>打卡</span></button>
+  <button class="nav-item" data-page="profile" onclick="switchTab('profile')"><span class="nav-icon">👤</span><span>我的</span></button>
+</nav>
 
-<!-- ========== 底部导航 ========== -->
-<div class="bottom-nav">
-  <div class="nav-item active" onclick="showPage('home')"><span class="icon">🏠</span><span class="label">首页</span></div>
-  <div class="nav-item" onclick="showPage('tools')"><span class="icon">🔧</span><span class="label">功能</span></div>
-  <div class="nav-item" onclick="showPage('community')"><span class="icon">💬</span><span class="label">社区</span></div>
-  <div class="nav-item" onclick="showPage('checkin')"><span class="icon">✅</span><span class="label">打卡</span></div>
-  <div class="nav-item" onclick="showPage('profile')"><span class="icon">👤</span><span class="label">我的</span></div>
-</div>
-
-<!-- ========== 发布弹窗 ========== -->
-<div class="modal-overlay" id="publish-modal">
-  <div class="modal-content publish-modal">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <span style="font-size:16px;font-weight:700;">发布动态</span>
-      <span style="font-size:20px;cursor:pointer;" onclick="closeModal('publish-modal')">✕</span>
-    </div>
-    <textarea id="publish-text" placeholder="分享你的居家生活..."></textarea>
-    <div class="image-grid"><div class="add-image">+</div></div>
-    <button class="submit-btn" onclick="submitPost()">发布</button>
-    <div class="modal-close" onclick="closeModal('publish-modal')">取消</div>
+<div class="modal-overlay" id="modal-login">
+  <div class="modal-content">
+    <div class="modal-header"><span class="modal-title" id="auth-title">🔐 登录</span><button class="modal-close" onclick="closeModal('login')">&times;</button></div>
+    <div class="form-group"><label class="form-label">手机号 / 邮箱</label><input type="text" class="form-input" id="auth-account" placeholder="请输入"></div>
+    <div class="form-group"><label class="form-label">密码</label><input type="password" class="form-input" id="auth-password" placeholder="请输入密码"></div>
+    <div class="form-group" id="auth-confirm-group" style="display:none;"><label class="form-label">确认密码</label><input type="password" class="form-input" id="auth-confirm" placeholder="请再次输入密码"></div>
+    <button class="btn-primary" id="auth-btn" onclick="handleAuth()">登录</button>
+    <button class="btn-secondary" onclick="toggleAuthMode()" id="auth-switch">没有账号？去注册</button>
   </div>
 </div>
 
-<!-- ========== 登录/注册弹窗 ========== -->
-<div class="modal-overlay" id="login-modal">
-  <div class="modal-content" style="max-width:360px;margin:auto;border-radius:20px;">
-    <div style="text-align:center;margin-bottom:20px;">
-      <div style="font-size:48px;margin-bottom:8px;">🏠</div>
-      <div style="font-size:20px;font-weight:700;">居家生活助手</div>
-      <div style="font-size:13px;color:#888;" id="login-subtitle">登录开启你的居家生活</div>
+<div class="modal-overlay" id="modal-post">
+  <div class="modal-content">
+    <div class="modal-header"><span class="modal-title">✏️ 发布动态</span><button class="modal-close" onclick="closeModal('post')">&times;</button></div>
+    <textarea class="post-textarea" id="post-content" placeholder="分享你的生活点滴..."></textarea>
+    <div class="post-images-placeholder">
+      <div class="post-img-placeholder" onclick="this.textContent=this.textContent?'':'🖼️';this.style.borderStyle=this.textContent?'solid':'dashed'">🖼️</div>
+      <div class="post-img-placeholder" onclick="this.textContent=this.textContent?'':'🖼️';this.style.borderStyle=this.textContent?'solid':'dashed'"></div>
+      <div class="post-img-placeholder" onclick="this.textContent=this.textContent?'':'🖼️';this.style.borderStyle=this.textContent?'solid':'dashed'"></div>
     </div>
-    <div class="login-form">
-      <input type="text" id="login-phone" placeholder="手机号/邮箱">
-      <input type="password" id="login-password" placeholder="密码">
-      <input type="password" id="login-confirm-password" placeholder="确认密码" style="display:none;">
-      <button onclick="doLogin()" id="login-submit-btn">登录</button>
-      <div class="switch-mode" onclick="toggleLoginMode()" id="login-switch-text">还没有账号？立即注册</div>
-      <div style="text-align:center;margin:16px 0;font-size:12px;color:#999;">— 或 —</div>
-      <div class="third-party">
-        <button class="third-btn" style="color:#07c160;" title="微信登录">💬</button>
-        <button class="third-btn" style="color:#12b7f5;" title="QQ登录">🐧</button>
-        <button class="third-btn" style="color:#333;" title="GitHub登录">🐙</button>
-      </div>
-    </div>
-    <div class="modal-close" onclick="closeModal('login-modal')">暂不登录</div>
+    <button class="btn-primary" onclick="submitPost()">发布</button>
   </div>
 </div>
 
-<!-- ========== 修改昵称弹窗 ========== -->
-<div class="modal-overlay" id="edit-nick-modal">
-  <div class="modal-content edit-nick-modal" style="max-width:360px;margin:auto;border-radius:20px;">
-    <div style="text-align:center;margin-bottom:20px;">
-      <div style="font-size:20px;font-weight:700;">修改昵称</div>
-    </div>
-    <input type="text" id="new-nickname" placeholder="输入新昵称" maxlength="20">
-    <button class="btn-primary" onclick="saveNickname()" style="width:100%;">保存</button>
-    <div class="modal-close" onclick="closeModal('edit-nick-modal')">取消</div>
+<div class="modal-overlay" id="modal-editName">
+  <div class="modal-content">
+    <div class="modal-header"><span class="modal-title">✏️ 修改昵称</span><button class="modal-close" onclick="closeModal('editName')">&times;</button></div>
+    <div class="form-group"><label class="form-label">新昵称</label><input type="text" class="form-input" id="new-nickname" placeholder="输入新昵称"></div>
+    <button class="btn-primary" onclick="saveNickname()">保存</button>
   </div>
 </div>
 
-<!-- ========== 隐私设置弹窗 ========== -->
-<div class="modal-overlay" id="privacy-modal">
-  <div class="modal-content" style="max-width:360px;margin:auto;border-radius:20px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-      <span style="font-size:18px;font-weight:700;">🔒 隐私设置</span>
-      <span style="font-size:20px;cursor:pointer;" onclick="closeModal('privacy-modal')">✕</span>
-    </div>
-    <div class="setting-item">
-      <div class="left">
-        <div class="info">
-          <div class="title">个人主页可见</div>
-          <div class="desc">允许其他用户查看你的主页</div>
-        </div>
-      </div>
-      <div class="toggle-switch active" id="privacy-profile" onclick="togglePrivacy(this,'profile_visible')"></div>
-    </div>
-    <div class="setting-item">
-      <div class="left">
-        <div class="info">
-          <div class="title">动态公开</div>
-          <div class="desc">允许其他用户看到你的动态</div>
-        </div>
-      </div>
-      <div class="toggle-switch active" id="privacy-posts" onclick="togglePrivacy(this,'posts_public')"></div>
-    </div>
-    <div class="setting-item">
-      <div class="left">
-        <div class="info">
-          <div class="title">允许关注</div>
-          <div class="desc">允许其他用户关注你</div>
-        </div>
-      </div>
-      <div class="toggle-switch active" id="privacy-follow" onclick="togglePrivacy(this,'allow_follow')"></div>
-    </div>
-    <div class="setting-item">
-      <div class="left">
-        <div class="info">
-          <div class="title">健康数据同步</div>
-          <div class="desc">允许云端备份健康数据</div>
-        </div>
-      </div>
-      <div class="toggle-switch" id="privacy-health" onclick="togglePrivacy(this,'health_sync')"></div>
-    </div>
-    <div class="modal-close" onclick="closeModal('privacy-modal')">完成</div>
+<div class="modal-overlay" id="modal-privacy">
+  <div class="modal-content">
+    <div class="modal-header"><span class="modal-title">🔒 隐私设置</span><button class="modal-close" onclick="closeModal('privacy')">&times;</button></div>
+    <div class="switch-row"><span class="switch-label">个人主页可见</span><label class="switch"><input type="checkbox" id="privacy-profile" onchange="savePrivacy()"><span class="switch-slider"></span></label></div>
+    <div class="switch-row"><span class="switch-label">动态公开</span><label class="switch"><input type="checkbox" id="privacy-posts" onchange="savePrivacy()"><span class="switch-slider"></span></label></div>
+    <div class="switch-row"><span class="switch-label">允许关注</span><label class="switch"><input type="checkbox" id="privacy-follow" onchange="savePrivacy()"><span class="switch-slider"></span></label></div>
+    <div class="switch-row"><span class="switch-label">健康数据同步</span><label class="switch"><input type="checkbox" id="privacy-health" onchange="savePrivacy()"><span class="switch-slider"></span></label></div>
   </div>
 </div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-const Storage = {
-  get: (k, d) => { try { return JSON.parse(localStorage.getItem(k)) || d; } catch { return d; } },
-  set: (k, v) => localStorage.setItem(k, JSON.stringify(v))
+const STORAGE_KEYS = {
+  user: 'user', posts: 'posts', favorites: 'favorites', myComments: 'myComments',
+  privacySettings: 'privacySettings', checkinItems: 'checkinItems',
+  checkinHistory: 'checkinHistory', feedPool: 'feedPool', interestPool: 'interestPool',
+  facts: 'facts', challengesData: 'challengesData', remedyDataList: 'remedyDataList',
+  faqDataList: 'faqDataList', hackDataList: 'hackDataList', puzzleData: 'puzzleData',
+  snacks: 'snacks'
 };
 
-let user = Storage.get('user', null);
-let posts = Storage.get('posts', []);
-let favorites = Storage.get('favorites', []);
-let myComments = Storage.get('myComments', []);
-let privacySettings = Storage.get('privacySettings', { profile_visible: true, posts_public: true, allow_follow: true, health_sync: false });
-let isRegisterMode = false;
+const DEFAULT_DATA = {
+  feedPool: [
+    { id: 1, emoji: '🥗', tags: ['健康','饮食'], title: '懒人减脂餐推荐', desc: '简单易做的低卡美食，让你吃得健康又美味', likes: 128, comments: 32, liked: false, saved: false },
+    { id: 2, emoji: '🧘', tags: ['运动','放松'], title: '睡前拉伸10分钟', desc: '缓解一天的疲劳，改善睡眠质量', likes: 256, comments: 45, liked: false, saved: false },
+    { id: 3, emoji: '🎨', tags: ['兴趣','手工'], title: '低成本爱好指南', desc: '不花大钱也能拥有的快乐时光', likes: 89, comments: 21, liked: false, saved: false },
+    { id: 4, emoji: '🏠', tags: ['生活','妙招'], title: '居家收纳小妙招', desc: '让小空间也能井井有条', likes: 342, comments: 67, liked: false, saved: false },
+    { id: 5, emoji: '📚', tags: ['学习','成长'], title: '一个人在家读什么', desc: '精选书单，独处时光不寂寞', likes: 178, comments: 38, liked: false, saved: false },
+    { id: 6, emoji: '💪', tags: ['健康','运动'], title: '居家健身计划', desc: '无需器械，每天20分钟练出好身材', likes: 412, comments: 89, liked: false, saved: false },
+    { id: 7, emoji: '🍵', tags: ['生活','养生'], title: '养生茶饮配方', desc: '四季养生茶，喝出好气色', likes: 95, comments: 18, liked: false, saved: false },
+    { id: 8, emoji: '🌱', tags: ['兴趣','植物'], title: '阳台种菜入门', desc: '从零开始打造你的迷你菜园', likes: 203, comments: 54, liked: false, saved: false }
+  ],
+  interestPool: [
+    { id: 1, emoji: '🎨', name: '水彩绘画', category: '艺术', tags: ['绘画','创作'], desc: '用色彩表达内心，零基础也能入门' },
+    { id: 2, emoji: '🏃', name: '晨跑', category: '运动', tags: ['健身','户外'], desc: '迎接清晨第一缕阳光，开启活力一天' },
+    { id: 3, emoji: '🧶', name: '编织手工', category: '手工', tags: ['DIY','温暖'], desc: '一针一线编织温暖与心意' },
+    { id: 4, emoji: '🍳', name: '烘焙', category: '生活', tags: ['美食','甜点'], desc: '让家里充满甜蜜的香气' },
+    { id: 5, emoji: '📖', name: '阅读写作', category: '学习', tags: ['知识','创作'], desc: '在文字中寻找智慧与宁静' },
+    { id: 6, emoji: '🎸', name: '吉他弹唱', category: '艺术', tags: ['音乐','表演'], desc: '用音乐点亮生活的每个角落' },
+    { id: 7, emoji: '🧘', name: '瑜伽冥想', category: '运动', tags: ['放松','身心'], desc: '在呼吸中找到内心的平静' },
+    { id: 8, emoji: '📷', name: '摄影', category: '艺术', tags: ['记录','美学'], desc: '用镜头捕捉生活中的美好瞬间' }
+  ],
+  facts: [
+    { emoji: '🐙', text: '章鱼有三颗心脏，两颗负责把血液输送到鳃，一颗负责把血液输送到全身。' },
+    { emoji: '🍌', text: '香蕉是浆果，而草莓不是。从植物学角度，浆果是由单朵花的一个子房发育而成的。' },
+    { emoji: '🦒', text: '长颈鹿的舌头可以长到45厘米，而且是蓝黑色的，用来防止晒伤。' },
+    { emoji: '🐝', text: '蜜蜂一生只能酿出约1/12茶匙的蜂蜜，所以每一滴蜂蜜都来之不易。' },
+    { emoji: '🌙', text: '月球正在以每年3.8厘米的速度远离地球，恐龙时代的月亮看起来比现在大得多。' }
+  ],
+  challengesData: [
+    { id: 1, emoji: '💧', title: '每天喝够8杯水', desc: '保持充足水分，让身体更健康' },
+    { id: 2, emoji: '📵', title: '睡前1小时不刷手机', desc: '改善睡眠质量，保护视力' },
+    { id: 3, emoji: '🧹', title: '每天整理一个角落', desc: '循序渐进打造整洁居家环境' },
+    { id: 4, emoji: '😊', title: '每天对镜子微笑', desc: '积极心理学，提升幸福感' }
+  ],
+  remedyDataList: [
+    { id: 1, emoji: '😴', title: '失眠补救', desc: '睡前泡脚+白噪音+4-7-8呼吸法，助你快速入眠' },
+    { id: 2, emoji: '😫', title: '颈椎酸痛', desc: '每工作1小时做颈部米字操，热敷15分钟' },
+    { id: 3, emoji: '👁️', title: '眼睛疲劳', desc: '20-20-20法则：每20分钟看20英尺外20秒' },
+    { id: 4, emoji: '😤', title: '情绪低落', desc: '出门散步30分钟，晒太阳，听喜欢的音乐' }
+  ],
+  faqDataList: [
+    { id: 1, emoji: '🥬', title: '蔬菜怎么保存更久？', desc: '绿叶菜用厨房纸包裹放保鲜袋，根茎类放阴凉通风处' },
+    { id: 2, emoji: '🧺', title: '衣服染色了怎么办？', desc: '立即用冷水冲洗，用肥皂搓洗，切勿用热水' },
+    { id: 3, emoji: '🦟', title: '如何天然驱蚊？', desc: '种植薄荷、薰衣草，或使用柠檬桉精油' },
+    { id: 4, emoji: '🪟', title: '窗户玻璃怎么擦？', desc: '白醋+水1:1混合，喷后用餐巾纸擦干，不留水痕' }
+  ],
+  hackDataList: [
+    { id: 1, emoji: '🧊', title: '快速冰镇饮料', desc: '湿纸巾包裹饮料放冷冻室15分钟，比直接冷冻快一倍' },
+    { id: 2, emoji: '🍋', title: '微波炉清洁妙招', desc: '碗里放水和柠檬片加热3分钟，蒸汽软化污渍一擦即净' },
+    { id: 3, emoji: '👟', title: '鞋子除臭', desc: '茶包或咖啡渣放入鞋内过夜，吸附异味效果好' },
+    { id: 4, emoji: '🪞', title: '镜子防雾', desc: '肥皂水涂抹镜面后用干布擦净，洗澡时不再起雾' }
+  ],
+  puzzleData: [
+    { id: 1, question: '有一样东西，越洗越脏，是什么？', answer: '水。因为水洗东西时，脏东西都跑到水里去了。' },
+    { id: 2, question: '什么东西属于你，但别人用的比你多？', answer: '你的名字。别人叫你的次数远比你自称的次数多。' }
+  ],
+  posts: [
+    { id: 1, avatar: '🌸', author: '小花', time: '2小时前', content: '今天尝试了新的减脂餐，感觉还不错！分享给大家～', images: ['🥗','🍅','🥑'], likes: 24, liked: false, saved: false, comments: 5 },
+    { id: 2, avatar: '🏃', author: '运动达人', time: '5小时前', content: '坚持晨跑第30天，感觉整个人都精神了！', images: ['🌅','👟'], likes: 56, liked: false, saved: false, comments: 12 },
+    { id: 3, avatar: '📚', author: '书虫小王', time: '昨天', content: '周末在家读完了《原子习惯》，强烈推荐！', images: ['📖','☕'], likes: 38, liked: false, saved: false, comments: 8 },
+    { id: 4, avatar: '🎨', author: '手工爱好者', time: '2天前', content: '用旧衣服做了一个抱枕，废物利用真开心！', images: ['🧶','🪡','🛋️'], likes: 72, liked: false, saved: false, comments: 15 }
+  ],
+  checkinItems: [
+    { id: 'early', icon: '🌅', name: '早起', streak: 3 },
+    { id: 'water', icon: '💧', name: '喝水', streak: 5 },
+    { id: 'sport', icon: '💪', name: '运动', streak: 2 },
+    { id: 'read', icon: '📖', name: '阅读', streak: 7 }
+  ],
+  checkinHistory: {},
+  snacks: [],
+  favorites: [],
+  myComments: [],
+  privacySettings: { profile: true, posts: true, follow: true, health: false }
+};
 
-let checkinItems = Storage.get('checkinItems', [
-  { id: 1, name: '早起打卡', icon: '🌅', color: '#FF9800', streak: 5, checked: false },
-  { id: 2, name: '喝水打卡', icon: '💧', color: '#2196F3', streak: 12, checked: false },
-  { id: 3, name: '运动打卡', icon: '🏃', color: '#4CAF50', streak: 3, checked: false },
-  { id: 4, name: '阅读打卡', icon: '📖', color: '#9C27B0', streak: 7, checked: false }
-]);
-let checkinHistory = Storage.get('checkinHistory', {});
-
-const feedPool = [
-  { id: 1, emoji: '🧘‍♀️', tags: [{t:'放松指南',c:'#e3f2fd',tc:'#1976d2'}, {t:'热门',c:'#fff3e0',tc:'#f57c00'}], title: '5分钟睡前拉伸，缓解一天疲劳', desc: '适合久坐办公族的简单拉伸动作，无需器械，在床上就能完成...', likes: 1200, comments: 86 },
-  { id: 2, emoji: '🥗', tags: [{t:'健康饮食',c:'#e8f5e9',tc:'#388e3c'}], title: '懒人减脂餐：15分钟搞定健康晚餐', desc: '鸡胸肉+西兰花+糙米饭，营养均衡热量低，附详细做法步骤...', likes: 2400, comments: 156 },
-  { id: 3, emoji: '🎨', tags: [{t:'兴趣推荐',c:'#f3e5f5',tc:'#7b1fa2'}, {t:'新手友好',c:'#e0f7fa',tc:'#00838f'}], title: '零基础水彩画入门：从第一笔开始', desc: '低成本、治愈系爱好，只需一套基础水彩工具，跟着教程画起来...', likes: 892, comments: 45 },
-  { id: 4, emoji: '🍌', tags: [{t:'冷知识',c:'#fffde7',tc:'#fbc02d'}], title: '香蕉其实是浆果，草莓却不是', desc: '植物学上的分类常常出人意料，了解更多有趣的植物知识...', likes: 3400, comments: 210 },
-  { id: 5, emoji: '🧩', tags: [{t:'智力题',c:'#fce4ec',tc:'#c2185b'}], title: '今日智力题：谁偷了蛋糕？', desc: '三个人中只有一个人说了真话，你能找出小偷吗？点击揭晓答案...', likes: 560, comments: 128 },
-  { id: 6, emoji: '💤', tags: [{t:'睡眠管理',c:'#e8eaf6',tc:'#3f51b5'}], title: '4-7-8呼吸法：60秒快速入睡', desc: '哈佛大学推荐的助眠技巧，通过调节呼吸节奏放松神经系统...', likes: 1800, comments: 92 },
-  { id: 7, emoji: '🧹', tags: [{t:'居家妙招',c:'#e0f2f1',tc:'#00796b'}], title: '白醋+小苏打：厨房清洁万能公式', desc: '不用买昂贵的清洁剂，这两种常见物品就能搞定厨房油污...', likes: 2100, comments: 178 },
-  { id: 8, emoji: '🏆', tags: [{t:'小挑战',c:'#fbe9e7',tc:'#d84315'}], title: '7天早起挑战：第3天打卡', desc: '已有 3,240 人参与，连续7天6点前起床，赢取早起达人徽章...', likes: 4200, comments: 356 }
-];
-
-const interestPool = [
-  { id: 1, emoji: '🎨', name: '水彩画', tags: ['室内','低成本','入门'], desc: '用色彩记录生活，零基础也能画出治愈系作品', color: '#FFECB3' },
-  { id: 2, emoji: '🧘', name: '瑜伽', tags: ['室内','免费','入门'], desc: '身心合一的运动方式，改善柔韧性和睡眠质量', color: '#C8E6C9' },
-  { id: 3, emoji: '📷', name: '手机摄影', tags: ['室内外','低成本','入门'], desc: '用手机记录美好瞬间，学习构图和光影技巧', color: '#BBDEFB' },
-  { id: 4, emoji: '🌱', name: '养植物', tags: ['室内','低成本','入门'], desc: '从多肉开始，打造属于你的绿色小天地', color: '#DCEDC8' },
-  { id: 5, emoji: '🎸', name: '尤克里里', tags: ['室内','低成本','入门'], desc: '四弦小吉他，简单易学，自弹自唱超治愈', color: '#FFE0B2' },
-  { id: 6, emoji: '🧩', name: '拼图', tags: ['室内','低成本','入门'], desc: '从500片开始，锻炼耐心和专注力', color: '#E1BEE7' }
-];
-
-const facts = [
-  { emoji: '🍌', title: '香蕉是浆果', content: '植物学上，香蕉符合浆果的定义（由单朵花发育而成，含多个种子）。而草莓、覆盆子等我们以为是浆果的，其实属于聚合果。' },
-  { emoji: '🐙', title: '章鱼有三颗心脏', content: '章鱼有两颗鳃心脏负责把血液泵入鳃中，一颗体心脏负责把血液输送到全身。而且它们的血液是蓝色的！' },
-  { emoji: '🍯', title: '蜂蜜永远不会变质', content: '考古学家在古埃及墓穴中发现了3000年前的蜂蜜，至今仍然可以食用。蜂蜜的低水分和高酸性让细菌无法生存。' },
-  { emoji: '🦒', title: '长颈鹿只有七块颈椎', content: '和人类一样！尽管长颈鹿的脖子可以长到2米，但它们的颈椎数量和人类完全相同，只是每块骨头更长。' },
-  { emoji: '🌵', title: '仙人掌的刺是叶子变的', content: '为了减少水分蒸发，仙人掌的叶子进化成了刺。真正进行光合作用的是它们肥厚的茎。' }
-];
-
-const challenges = [
-  { emoji: '🌅', title: '7天早起挑战', desc: '连续7天6点前起床', participants: 3240 },
-  { emoji: '📵', title: '24小时不看手机', desc: '放下手机，感受生活', participants: 1890 },
-  { emoji: '💧', title: '每天8杯水', desc: '连续30天记录饮水', participants: 5620 },
-  { emoji: '📖', title: '21天阅读计划', desc: '每天阅读30分钟', participants: 4100 }
-];
-
-const faqData = [
-  { q: '如何开始第一次打卡？', a: '进入打卡中心，点击已有项目右侧的"打卡"按钮，或点击"+新建"创建自己的打卡项目。' },
-  { q: '健康数据会泄露吗？', a: '所有健康数据仅存储在您的设备本地，不会上传到任何服务器，请放心使用。' },
-  { q: '如何修改昵称？', a: '进入"我的"页面，点击右上角"设置"按钮，选择"修改昵称"即可。' },
-  { q: '收藏的内容在哪里查看？', a: '在"我的"页面中，点击"收藏"标签即可查看所有收藏的内容。' }
-];
-
-const remedyData = [
-  { emoji: '😴', title: '失眠补救', desc: '试试4-7-8呼吸法，或听一段白噪音，避免睡前看手机。' },
-  { emoji: '🍔', title: '暴饮暴食后', desc: '下一餐减少碳水摄入，多喝水，适当散步帮助消化。' },
-  { emoji: '😰', title: '焦虑缓解', desc: '深呼吸10次，写下让你焦虑的事情，然后逐一分析解决方案。' },
-  { emoji: '📱', title: '手机依赖', desc: '设置屏幕使用时间限制，把手机放在另一个房间，培养离线爱好。' }
-];
-
-const hackData = [
-  { emoji: '🍋', title: '柠檬去水垢', desc: '将柠檬切片煮水，倒入有水垢的水壶中浸泡1小时，水垢轻松去除。' },
-  { emoji: '🧊', title: '冰块去地毯凹痕', desc: '将冰块放在地毯家具压痕处，融化后用刷子梳理，恢复蓬松。' },
-  { emoji: '🍞', title: '面包吸异味', desc: '将过期面包放入冰箱，可以有效吸附冰箱中的异味。' },
-  { emoji: '🥤', title: '可乐通下水道', desc: '将可乐倒入堵塞的下水道，静置1小时后用热水冲洗，利用碳酸溶解油脂。' }
-];
-
-const puzzleData = [
-  { emoji: '🧩', title: '过河问题', desc: '农夫要把狼、羊、白菜运到河对岸，船每次只能带一样。狼吃羊，羊吃白菜，如何安全运输？', answer: '先带羊过河 → 空手回来 → 带狼过河 → 带羊回来 → 带白菜过河 → 空手回来 → 带羊过河' },
-  { emoji: '🧩', title: '称球问题', desc: '12个球中有一个重量不同（不知轻重），用天平最少几次能找出？', answer: '最少需要3次。将球分为三组，通过比较逐步缩小范围。' }
-];
-
-// ========== 页面导航 ==========
-function showPage(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  const target = document.getElementById('page-' + page);
-  if (target) target.classList.add('active');
-
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const navMap = { home: 0, tools: 1, community: 2, checkin: 3, profile: 4 };
-  if (navMap[page] !== undefined) {
-    const navItems = document.querySelectorAll('.nav-item');
-    if (navItems[navMap[page]]) navItems[navMap[page]].classList.add('active');
-  }
-
-  window.scrollTo(0, 0);
-  if (page === 'home') renderFeed();
-  if (page === 'community') renderPosts();
-  if (page === 'checkin') renderCheckin();
-  if (page === 'profile') renderProfile();
+function initData() {
+  try {
+    Object.keys(DEFAULT_DATA).forEach(key => {
+      const stored = localStorage.getItem(STORAGE_KEYS[key]);
+      if (stored === null) {
+        localStorage.setItem(STORAGE_KEYS[key], JSON.stringify(DEFAULT_DATA[key]));
+      }
+    });
+    if (!localStorage.getItem(STORAGE_KEYS.user)) {
+      localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(null));
+    }
+  } catch(e) { console.error('initData error', e); }
 }
 
-// ========== 首页功能 ==========
-function renderFeed() {
-  const container = document.getElementById('feed-container');
-  if (!container) return;
-  const shuffled = [...feedPool].sort(() => Math.random() - 0.5).slice(0, 3);
-  container.innerHTML = shuffled.map(item => `
-    <div class="feed-card">
-      <div class="cover" style="background:linear-gradient(135deg,#ff9a9e,#fecfef);">${item.emoji}</div>
-      <div class="content">
-        <div class="tags">${item.tags.map(t => `<span class="tag" style="background:${t.c};color:${t.tc};">${t.t}</span>`).join('')}</div>
-        <div class="title">${item.title}</div>
-        <div class="desc">${item.desc}</div>
-        <div class="stats">
-          <span onclick="likeFeed(this)">👍 ${formatNum(item.likes)}</span>
-          <span>💬 ${item.comments}</span>
-          <span onclick="favoriteFeed(${item.id},this)">⭐ ${isFavorited(item.id) ? '已收藏' : '收藏'}</span>
+function getData(key) {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEYS[key]) || 'null'); }
+  catch(e) { return DEFAULT_DATA[key] || null; }
+}
+function setData(key, value) {
+  try { localStorage.setItem(STORAGE_KEYS[key], JSON.stringify(value)); }
+  catch(e) { showToast('存储失败，请检查存储空间'); }
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+let currentPage = 'home';
+function switchTab(page) {
+  try {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('tool-subpages').classList.remove('active');
+    document.getElementById('tool-subpages').innerHTML = '';
+    const target = document.getElementById('page-' + page);
+    if (target) target.classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const nav = document.querySelector('.nav-item[data-page="' + page + '"]');
+    if (nav) nav.classList.add('active');
+    currentPage = page;
+    if (page === 'home') renderHomeFeed();
+    if (page === 'community') renderCommunity();
+    if (page === 'checkin') renderCheckin();
+    if (page === 'profile') renderProfile();
+    if (page === 'tools') renderTools();
+    window.scrollTo(0, 0);
+  } catch(e) { console.error('switchTab error', e); }
+}
+function showPage(page) { switchTab(page); }
+
+function openModal(id) {
+  const modal = document.getElementById('modal-' + id);
+  if (!modal) return;
+  modal.classList.add('show');
+  if (id === 'privacy') loadPrivacySettings();
+}
+function closeModal(id) {
+  const modal = document.getElementById('modal-' + id);
+  if (!modal) return;
+  modal.classList.remove('show');
+}
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
+});
+
+let isRegisterMode = false;
+function toggleAuthMode() {
+  isRegisterMode = !isRegisterMode;
+  document.getElementById('auth-title').textContent = isRegisterMode ? '🔐 注册' : '🔐 登录';
+  document.getElementById('auth-btn').textContent = isRegisterMode ? '注册' : '登录';
+  document.getElementById('auth-switch').textContent = isRegisterMode ? '已有账号？去登录' : '没有账号？去注册';
+  document.getElementById('auth-confirm-group').style.display = isRegisterMode ? 'block' : 'none';
+}
+function handleAuth() {
+  try {
+    const account = document.getElementById('auth-account').value.trim();
+    const password = document.getElementById('auth-password').value;
+    const confirm = document.getElementById('auth-confirm').value;
+    if (!account || !password) { showToast('请填写完整信息'); return; }
+    if (isRegisterMode) {
+      if (password !== confirm) { showToast('两次密码不一致'); return; }
+      if (password.length < 6) { showToast('密码长度至少6位'); return; }
+      showToast('注册成功！请登录');
+      toggleAuthMode();
+      document.getElementById('auth-password').value = '';
+      document.getElementById('auth-confirm').value = '';
+      return;
+    }
+    const user = { nickname: account.split('@')[0].split('+')[0] || '用户', account: account, avatar: '😊', bio: '记录美好生活' };
+    setData('user', user);
+    closeModal('login');
+    showToast('登录成功');
+    setTimeout(() => { switchTab('profile'); }, 150);
+  } catch(e) { showToast('操作失败，请重试'); }
+}
+function logout() {
+  try {
+    setData('user', null);
+    showToast('已退出登录');
+    renderProfile();
+    renderHomeFeed();
+  } catch(e) { showToast('退出失败'); }
+}
+function isLoggedIn() { return !!getData('user'); }
+function getUser() { return getData('user'); }
+
+function renderHomeFeed() {
+  try {
+    const pool = getData('feedPool') || DEFAULT_DATA.feedPool;
+    const container = document.getElementById('home-feed');
+    const shuffled = [...pool].sort(() => Math.random() - 0.5);
+    const items = shuffled.slice(0, 6);
+    container.innerHTML = items.map(item => `
+      <div class="feed-card">
+        <div class="feed-cover">${item.emoji}</div>
+        <div class="feed-body">
+          <div class="feed-tags">${item.tags.map(t => `<span class="feed-tag">${t}</span>`).join('')}</div>
+          <div class="feed-title">${item.title}</div>
+          <div class="feed-desc">${item.desc}</div>
+          <div class="feed-actions">
+            <span>❤️ ${item.likes} 💬 ${item.comments}</span>
+            <button onclick="toggleFeedSave(${item.id}, this)">${item.saved ? '🔖' : '🔖'}</button>
+          </div>
         </div>
       </div>
-    </div>
-  `).join('');
+    `).join('');
+    const user = getUser();
+    const loginBtn = document.getElementById('home-login-btn');
+    if (loginBtn) {
+      if (user) { loginBtn.textContent = user.nickname; loginBtn.onclick = () => switchTab('profile'); }
+      else { loginBtn.textContent = '登录'; loginBtn.onclick = () => openModal('login'); }
+    }
+  } catch(e) { console.error('renderHomeFeed error', e); }
 }
-
-function refreshFeed() {
-  const btn = document.querySelector('.refresh-btn');
-  if (btn) { btn.textContent = '🔄 刷新中...'; setTimeout(() => { renderFeed(); btn.textContent = '🔄 换一批'; }, 600); }
+function toggleFeedSave(id, btn) {
+  try {
+    if (!isLoggedIn()) { openModal('login'); return; }
+    const pool = getData('feedPool') || DEFAULT_DATA.feedPool;
+    const item = pool.find(p => p.id === id);
+    if (item) {
+      item.saved = !item.saved;
+      setData('feedPool', pool);
+      if (item.saved) {
+        const favs = getData('favorites') || [];
+        if (!favs.find(f => f.id === id && f.type === 'feed')) {
+          favs.push({ id: id, type: 'feed', emoji: item.emoji, title: item.title, desc: item.desc });
+          setData('favorites', favs);
+        }
+        showToast('已收藏');
+      } else {
+        let favs = getData('favorites') || [];
+        favs = favs.filter(f => !(f.id === id && f.type === 'feed'));
+        setData('favorites', favs);
+        showToast('已取消收藏');
+      }
+      renderHomeFeed();
+    }
+  } catch(e) { showToast('操作失败'); }
 }
-
-function likeFeed(el) {
-  if (el.classList.contains('liked')) return;
-  el.classList.add('liked');
-  const num = parseInt(el.textContent.replace(/[^0-9]/g, '')) + 1;
-  el.textContent = '👍 ' + formatNum(num);
-}
-
-function formatNum(n) { return n >= 1000 ? (n/1000).toFixed(1) + 'k' : n; }
 
 function doSearch(keyword) {
   if (!keyword.trim()) return;
-  const searchInput = document.getElementById('search-input-page');
-  if (searchInput) searchInput.value = keyword;
+  document.getElementById('search-input-page').value = keyword;
   showPage('search');
-  doSearchPage();
+  doPageSearch();
 }
+function doPageSearch() {
+  try {
+    const keyword = document.getElementById('search-input-page').value.trim().toLowerCase();
+    if (!keyword) { showToast('请输入搜索关键词'); return; }
+    const results = [];
+    const addResult = (type, emoji, title, desc, typeLabel, color) => {
+      if (title.toLowerCase().includes(keyword) || desc.toLowerCase().includes(keyword)) {
+        results.push({ type, emoji, title, desc, typeLabel, color });
+      }
+    };
+    (getData('feedPool') || []).forEach(item => addResult('feed', item.emoji, item.title, item.desc, '推荐', '#667eea'));
+    (getData('interestPool') || []).forEach(item => addResult('interest', item.emoji, item.name, item.desc, '兴趣', '#764ba2'));
+    (getData('posts') || []).forEach(item => addResult('post', item.avatar, item.author + '的动态', item.content, '社区', '#52c41a'));
+    (getData('faqDataList') || []).forEach(item => addResult('faq', item.emoji, item.title, item.desc, '问答', '#faad14'));
+    (getData('remedyDataList') || []).forEach(item => addResult('remedy', item.emoji, item.title, item.desc, '补救', '#ff4d4f'));
+    (getData('hackDataList') || []).forEach(item => addResult('hack', item.emoji, item.title, item.desc, '妙招', '#1890ff'));
+    (getData('puzzleData') || []).forEach(item => addResult('puzzle', '🧩', item.question, item.answer, '智力题', '#722ed1'));
+    (getData('challengesData') || []).forEach(item => addResult('challenge', item.emoji, item.title, item.desc, '挑战', '#eb2f96'));
+    (getData('facts') || []).forEach(item => addResult('fact', item.emoji, '冷知识', item.text, '冷知识', '#13c2c2'));
 
-function doSearchPage() {
-  const keyword = document.getElementById('search-input-page')?.value || '';
-  const results = feedPool.filter(f => f.title.includes(keyword) || f.desc.includes(keyword));
-  const container = document.getElementById('search-results');
-  if (!container) return;
-  if (results.length === 0) {
-    container.innerHTML = `<div style="text-align:center;padding:60px 20px;color:#999;"><div style="font-size:48px;margin-bottom:12px;">🔍</div><div>未找到相关内容</div></div>`;
-    return;
-  }
-  container.innerHTML = results.map(r => `
-    <div class="search-result-item"><div class="title">${r.title}</div><div class="desc">${r.desc}</div></div>
-  `).join('');
-}
-
-// ========== 社区功能 ==========
-function renderPosts() {
-  const container = document.getElementById('posts-container');
-  if (!container) return;
-  const demoPosts = [
-    { id: 101, author: '居家小达人', avatar: '🏠', time: '10分钟前', content: '今天尝试了新的懒人食谱，番茄鸡蛋面真的太好吃了！🍜 大家有什么简单快手的晚餐推荐吗？', images: ['🍜','🥚','🍅'], likes: 42, comments: 8, liked: false, favorited: false },
-    { id: 102, author: '健身小白', avatar: '💪', time: '1小时前', content: '坚持运动打卡第30天！从最初跑500米就喘，到现在能跑3公里了，虽然还是慢，但进步就是胜利 ✌️', images: ['🏃','📊'], likes: 128, comments: 23, liked: true, favorited: false },
-    { id: 103, author: '植物杀手', avatar: '🌱', time: '3小时前', content: '我的多肉终于活过一个月了！纪念一下 🎉 之前养啥死啥，这次严格按照教程来，少浇水多晒太阳', images: ['🌵','☀️'], likes: 67, comments: 15, liked: false, favorited: true },
-    { id: 104, author: '夜猫子', avatar: '🦉', time: '5小时前', content: '昨晚试了4-7-8呼吸法，真的10分钟就睡着了！以前总要躺1小时，强烈推荐给失眠的姐妹们', images: ['💤'], likes: 256, comments: 45, liked: false, favorited: false }
-  ];
-  const allPosts = [...posts, ...demoPosts];
-  container.innerHTML = allPosts.map((p, i) => `
-    <div class="post-card">
-      <div class="post-header">
-        <div class="post-avatar">${p.avatar}</div>
-        <div class="post-meta"><div class="post-author">${p.author}</div><div class="post-time">${p.time}</div></div>
-      </div>
-      <div class="post-content">${p.content}</div>
-      ${p.images ? `<div class="post-images">${p.images.map(img => `<div class="post-image">${img}</div>`).join('')}</div>` : ''}
-      <div class="post-actions">
-        <div class="post-action ${p.liked ? 'liked' : ''}" onclick="toggleLike(this,${i})"><span>${p.liked ? '❤️' : '🤍'}</span><span>${p.likes}</span></div>
-        <div class="post-action" onclick="showCommentModal(${p.id})"><span>💬</span><span>${p.comments}</span></div>
-        <div class="post-action ${p.favorited || isFavorited(p.id) ? 'favorited' : ''}" onclick="toggleFavoritePost(${p.id},this)"><span>⭐</span><span>${p.favorited || isFavorited(p.id) ? '已收藏' : '收藏'}</span></div>
-        <div class="post-action"><span>↗️</span><span>分享</span></div>
-      </div>
-    </div>
-  `).join('');
-}
-
-function toggleLike(el, idx) {
-  const isLiked = el.classList.contains('liked');
-  el.classList.toggle('liked');
-  el.querySelector('span:first-child').textContent = isLiked ? '🤍' : '❤️';
-  let num = parseInt(el.querySelector('span:last-child').textContent);
-  el.querySelector('span:last-child').textContent = isLiked ? num - 1 : num + 1;
-}
-
-function switchCommunityTab(tab, el) {
-  document.querySelectorAll('.community-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  renderPosts();
-}
-
-function showPublishModal() {
-  if (!user) { showLogin(); return; }
-  document.getElementById('publish-modal')?.classList.add('active');
-}
-
-function closeModal(id) { 
-  document.getElementById(id)?.classList.remove('active'); 
-  if (id === 'login-modal') {
-    // 重置登录表单
-    setTimeout(() => {
-      isRegisterMode = false;
-      updateLoginUI();
-    }, 300);
-  }
-}
-
-function submitPost() {
-  const text = document.getElementById('publish-text')?.value;
-  if (!text.trim()) { alert('请输入内容'); return; }
-  const newPost = { 
-    id: Date.now(),
-    author: user?.nickname || user?.phone || '用户', 
-    avatar: user?.avatar || '👤', 
-    time: '刚刚', 
-    content: text, 
-    likes: 0, 
-    comments: 0, 
-    liked: false,
-    favorited: false
-  };
-  posts.unshift(newPost);
-  Storage.set('posts', posts);
-  document.getElementById('publish-text').value = '';
-  closeModal('publish-modal');
-  showPage('community');
-}
-
-function showCommentModal(postId) {
-  if (!user) { showLogin(); return; }
-  const comment = prompt('输入你的评论：');
-  if (!comment) return;
-  myComments.unshift({
-    id: Date.now(),
-    postId: postId,
-    content: comment,
-    time: '刚刚',
-    target: '动态评论'
-  });
-  Storage.set('myComments', myComments);
-  alert('评论成功！');
-}
-
-// ========== 收藏功能 ==========
-function isFavorited(id) {
-  return favorites.some(f => f.id === id);
-}
-
-function favoriteFeed(id, el) {
-  if (!user) { showLogin(); return; }
-  const idx = favorites.findIndex(f => f.id === id);
-  if (idx >= 0) {
-    favorites.splice(idx, 1);
-    el.textContent = '⭐ 收藏';
-  } else {
-    const item = feedPool.find(f => f.id === id);
-    if (item) favorites.unshift({ id: item.id, type: 'feed', title: item.title, desc: item.desc, emoji: item.emoji, time: new Date().toLocaleDateString() });
-    el.textContent = '⭐ 已收藏';
-  }
-  Storage.set('favorites', favorites);
-}
-
-function toggleFavoritePost(postId, el) {
-  if (!user) { showLogin(); return; }
-  const idx = favorites.findIndex(f => f.id === postId);
-  if (idx >= 0) {
-    favorites.splice(idx, 1);
-    el.classList.remove('favorited');
-    el.querySelector('span:last-child').textContent = '收藏';
-  } else {
-    const post = posts.find(p => p.id === postId);
-    if (post) {
-      favorites.unshift({ id: post.id, type: 'post', title: post.content.substring(0, 30) + '...', desc: post.content, emoji: post.avatar, time: new Date().toLocaleDateString() });
-    } else {
-      favorites.unshift({ id: postId, type: 'post', title: '社区动态', desc: '精彩内容', emoji: '💬', time: new Date().toLocaleDateString() });
+    const container = document.getElementById('search-results');
+    if (results.length === 0) {
+      container.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div><div>未找到相关内容</div><div style="font-size:13px;margin-top:8px;">换个关键词试试</div></div>';
+      return;
     }
-    el.classList.add('favorited');
-    el.querySelector('span:last-child').textContent = '已收藏';
-  }
-  Storage.set('favorites', favorites);
-}
-
-// ========== 打卡功能 ==========
-function renderCheckin() {
-  const now = new Date();
-  const monthEl = document.getElementById('current-month');
-  if (monthEl) monthEl.textContent = `${now.getFullYear()}年${now.getMonth()+1}月`;
-
-  const grid = document.getElementById('calendar-grid');
-  if (!grid) return;
-  const daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
-  const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
-  let html = '';
-  const weekDays = ['日','一','二','三','四','五','六'];
-  weekDays.forEach(d => html += `<div style="font-size:12px;color:#999;padding:4px;">${d}</div>`);
-  for (let i = 0; i < firstDay; i++) html += '<div></div>';
-  for (let d = 1; d <= daysInMonth; d++) {
-    const dateKey = `${now.getFullYear()}-${now.getMonth()+1}-${d}`;
-    const isChecked = checkinHistory[dateKey];
-    const isToday = d === now.getDate();
-    html += `<div class="calendar-day ${isChecked ? 'checked' : ''} ${isToday ? 'today' : ''}">${d}</div>`;
-  }
-  grid.innerHTML = html;
-
-  const itemsContainer = document.getElementById('checkin-items');
-  if (itemsContainer) {
-    itemsContainer.innerHTML = checkinItems.map(item => `
-      <div class="checkin-item">
-        <div class="icon" style="background:${item.color}20;color:${item.color};">${item.icon}</div>
-        <div class="info"><div class="name">${item.name}</div><div class="streak">🔥 连续 ${item.streak} 天</div></div>
-        <button class="checkin-btn ${item.checked ? 'checked' : ''}" onclick="doCheckin(${item.id},this)">${item.checked ? '已打卡' : '打卡'}</button>
+    const groups = {};
+    results.forEach(r => { groups[r.typeLabel] = groups[r.typeLabel] || []; groups[r.typeLabel].push(r); });
+    container.innerHTML = Object.entries(groups).map(([label, items]) => `
+      <div class="search-group">
+        <div class="search-group-title">${label}</div>
+        ${items.map(item => `
+          <div class="search-result-item">
+            <div class="search-result-emoji">${item.emoji}</div>
+            <div class="search-result-info">
+              <div class="search-result-title">${item.title}</div>
+              <div class="search-result-desc">${item.desc}</div>
+            </div>
+            <span class="search-result-tag" style="background:${item.color}">${label}</span>
+          </div>
+        `).join('')}
       </div>
     `).join('');
-  }
+  } catch(e) { showToast('搜索失败'); }
 }
 
-function doCheckin(id, btn) {
-  const item = checkinItems.find(i => i.id === id);
-  if (!item || item.checked) return;
-  item.checked = true; item.streak++;
-  const today = new Date();
-  const dateKey = `${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`;
-  checkinHistory[dateKey] = true;
-  Storage.set('checkinItems', checkinItems);
-  Storage.set('checkinHistory', checkinHistory);
-  btn.textContent = '已打卡'; btn.classList.add('checked');
-  renderCheckin();
-  const encouragements = ['太棒了！继续保持 💪', '你已经很棒了，继续坚持！✨', '好习惯正在养成 🌟', '今天也是元气满满的一天！☀️'];
-  setTimeout(() => alert(encouragements[Math.floor(Math.random() * encouragements.length)]), 200);
+function renderCommunity() {
+  try {
+    const posts = getData('posts') || DEFAULT_DATA.posts;
+    const container = document.getElementById('community-posts');
+    container.innerHTML = posts.map(post => `
+      <div class="post-card">
+        <div class="post-header">
+          <div class="post-avatar">${post.avatar}</div>
+          <div class="post-meta">
+            <div class="post-author">${post.author}</div>
+            <div class="post-time">${post.time}</div>
+          </div>
+        </div>
+        <div class="post-content">${post.content}</div>
+        <div class="post-images">${(post.images || []).map(img => `<div class="post-img">${img}</div>`).join('')}</div>
+        <div class="post-actions">
+          <button class="post-action ${post.liked ? 'liked' : ''}" onclick="togglePostLike(${post.id})">
+            ${post.liked ? '❤️' : '🤍'} ${post.likes}
+          </button>
+          <button class="post-action" onclick="addComment(${post.id})">💬 ${post.comments || 0}</button>
+          <button class="post-action" onclick="togglePostSave(${post.id})">${post.saved ? '🔖' : '🔖'}</button>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) { console.error('renderCommunity error', e); }
+}
+function switchCommunityTab(btn, type) {
+  document.querySelectorAll('.community-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderCommunity();
+}
+function togglePostLike(id) {
+  try {
+    const posts = getData('posts') || DEFAULT_DATA.posts;
+    const post = posts.find(p => p.id === id);
+    if (post) {
+      post.liked = !post.liked;
+      post.likes += post.liked ? 1 : -1;
+      setData('posts', posts);
+      renderCommunity();
+      showToast(post.liked ? '已点赞' : '取消点赞');
+    }
+  } catch(e) { showToast('操作失败'); }
+}
+function togglePostSave(id) {
+  try {
+    if (!isLoggedIn()) { openModal('login'); return; }
+    const posts = getData('posts') || DEFAULT_DATA.posts;
+    const post = posts.find(p => p.id === id);
+    if (post) {
+      post.saved = !post.saved;
+      setData('posts', posts);
+      let favs = getData('favorites') || [];
+      if (post.saved) {
+        if (!favs.find(f => f.id === id && f.type === 'post')) {
+          favs.push({ id: id, type: 'post', emoji: post.avatar, title: post.author + '的动态', desc: post.content });
+        }
+        showToast('已收藏');
+      } else {
+        favs = favs.filter(f => !(f.id === id && f.type === 'post'));
+        showToast('已取消收藏');
+      }
+      setData('favorites', favs);
+      renderCommunity();
+    }
+  } catch(e) { showToast('操作失败'); }
+}
+function addComment(postId) {
+  try {
+    if (!isLoggedIn()) { openModal('login'); return; }
+    const text = prompt('输入评论内容：');
+    if (!text || !text.trim()) return;
+    const comments = getData('myComments') || [];
+    comments.push({ postId, text: text.trim(), time: '刚刚', author: getUser()?.nickname || '我' });
+    setData('myComments', comments);
+    const posts = getData('posts') || DEFAULT_DATA.posts;
+    const post = posts.find(p => p.id === postId);
+    if (post) { post.comments = (post.comments || 0) + 1; setData('posts', posts); }
+    renderCommunity();
+    showToast('评论成功');
+  } catch(e) { showToast('评论失败'); }
+}
+function openPostModal() {
+  if (!isLoggedIn()) { openModal('login'); return; }
+  openModal('post');
+}
+function submitPost() {
+  try {
+    const content = document.getElementById('post-content').value.trim();
+    if (!content) { showToast('请输入内容'); return; }
+    const posts = getData('posts') || DEFAULT_DATA.posts;
+    const user = getUser();
+    posts.unshift({
+      id: Date.now(), avatar: user?.avatar || '😊', author: user?.nickname || '我',
+      time: '刚刚', content, images: ['🖼️'], likes: 0, liked: false, saved: false, comments: 0
+    });
+    setData('posts', posts);
+    document.getElementById('post-content').value = '';
+    closeModal('post');
+    showToast('发布成功');
+    renderCommunity();
+  } catch(e) { showToast('发布失败'); }
 }
 
-function addCheckinItem() {
-  const name = prompt('输入打卡项目名称：');
-  if (!name) return;
-  const icons = ['🌟','🔥','💧','🏃','📖','🎨','🎵','💪','🧘','🌱'];
-  const colors = ['#FF9800','#F44336','#2196F3','#4CAF50','#9C27B0','#E91E63','#3F51B5','#009688','#FF5722','#795548'];
-  checkinItems.push({ id: Date.now(), name: name, icon: icons[Math.floor(Math.random()*icons.length)], color: colors[Math.floor(Math.random()*colors.length)], streak: 0, checked: false });
-  Storage.set('checkinItems', checkinItems);
-  renderCheckin();
+function renderCheckin() {
+  try {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const today = now.getDate();
+    const todayKey = formatDateKey(now);
+    document.getElementById('calendar-month').textContent = `${year}年${month + 1}月`;
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const history = getData('checkinHistory') || {};
+    let html = '<div class="calendar-day-name">日</div><div class="calendar-day-name">一</div><div class="calendar-day-name">二</div><div class="calendar-day-name">三</div><div class="calendar-day-name">四</div><div class="calendar-day-name">五</div><div class="calendar-day-name">六</div>';
+    for (let i = 0; i < firstDay; i++) html += '<div class="calendar-day other-month"></div>';
+    for (let d = 1; d <= daysInMonth; d++) {
+      const key = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      const isChecked = history[key] && history[key].length > 0;
+      const isToday = d === today;
+      html += `<div class="calendar-day ${isChecked ? 'checked' : ''} ${isToday ? 'today' : ''}">${d}</div>`;
+    }
+    document.getElementById('calendar-grid').innerHTML = html;
+    const items = getData('checkinItems') || DEFAULT_DATA.checkinItems;
+    const container = document.getElementById('checkin-list');
+    container.innerHTML = items.map(item => {
+      const isDone = (history[todayKey] || []).includes(item.id);
+      return `
+        <div class="checkin-item">
+          <div class="checkin-icon">${item.icon}</div>
+          <div class="checkin-info">
+            <div class="checkin-name">${item.name}</div>
+            <div class="checkin-streak">连续 ${item.streak || 0} 天</div>
+          </div>
+          <button class="checkin-btn ${isDone ? 'checked' : 'unchecked'}" onclick="doCheckin('${item.id}')" ${isDone ? 'disabled' : ''}>
+            ${isDone ? '已打卡' : '打卡'}
+          </button>
+        </div>
+      `;
+    }).join('');
+  } catch(e) { console.error('renderCheckin error', e); }
+}
+function formatDateKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+function doCheckin(itemId) {
+  try {
+    const now = new Date();
+    const todayKey = formatDateKey(now);
+    const history = getData('checkinHistory') || {};
+    if (!history[todayKey]) history[todayKey] = [];
+    if (history[todayKey].includes(itemId)) { showToast('今日已打卡'); return; }
+    history[todayKey].push(itemId);
+    setData('checkinHistory', history);
+    const items = getData('checkinItems') || DEFAULT_DATA.checkinItems;
+    const item = items.find(i => i.id === itemId);
+    if (item) {
+      const yesterday = new Date(now);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yKey = formatDateKey(yesterday);
+      if (history[yKey] && history[yKey].includes(itemId)) {
+        item.streak = (item.streak || 0) + 1;
+      } else {
+        item.streak = 1;
+      }
+      setData('checkinItems', items);
+    }
+    renderCheckin();
+    showToast('打卡成功！继续保持 💪');
+  } catch(e) { showToast('打卡失败'); }
+}
+function addCustomCheckin() {
+  try {
+    const name = prompt('输入打卡项目名称：');
+    if (!name || !name.trim()) return;
+    const icon = prompt('输入一个emoji图标（如 🎯）：') || '✨';
+    const items = getData('checkinItems') || DEFAULT_DATA.checkinItems;
+    items.push({ id: 'custom_' + Date.now(), icon: icon.trim(), name: name.trim(), streak: 0 });
+    setData('checkinItems', items);
+    renderCheckin();
+    showToast('添加成功');
+  } catch(e) { showToast('添加失败'); }
 }
 
-// ========== 个人主页功能 ==========
+let currentProfileTab = 'posts';
 function renderProfile() {
-  const nameEl = document.getElementById('profile-name');
-  const bioEl = document.getElementById('profile-bio');
-  const avatarEl = document.getElementById('profile-avatar');
-  const loginBtn = document.getElementById('login-btn-header');
-
-  if (user) {
-    if (nameEl) nameEl.textContent = user.nickname || user.phone || '用户';
-    if (bioEl) bioEl.textContent = user.bio || '热爱生活，记录每一天';
-    if (avatarEl) avatarEl.textContent = user.avatar || '👤';
-    if (loginBtn) loginBtn.textContent = user.nickname || user.phone || '用户';
-    document.getElementById('stat-following').textContent = '12';
-    document.getElementById('stat-followers').textContent = '8';
-    document.getElementById('stat-likes').textContent = '156';
-  } else {
-    if (nameEl) nameEl.textContent = '点击登录';
-    if (bioEl) bioEl.textContent = '记录你的居家生活';
-    if (avatarEl) avatarEl.textContent = '👤';
-    if (loginBtn) loginBtn.textContent = '登录';
-    document.getElementById('stat-following').textContent = '0';
-    document.getElementById('stat-followers').textContent = '0';
-    document.getElementById('stat-likes').textContent = '0';
-  }
-
-  // 默认显示第一个tab
-  const firstTab = document.querySelector('.profile-tab');
-  if (firstTab && !firstTab.classList.contains('active')) {
-    document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
-    firstTab.classList.add('active');
-  }
-  switchProfileTab('posts', firstTab);
-}
-
-function toggleProfileMenu() {
-  document.getElementById('profile-menu-dropdown')?.classList.toggle('active');
-}
-
-function showEditNickname() {
-  document.getElementById('profile-menu-dropdown')?.classList.remove('active');
-  if (!user) { showLogin(); return; }
-  document.getElementById('new-nickname').value = user.nickname || '';
-  document.getElementById('edit-nick-modal')?.classList.add('active');
-}
-
-function saveNickname() {
-  const newNick = document.getElementById('new-nickname')?.value.trim();
-  if (!newNick) { alert('请输入昵称'); return; }
-  if (!user) return;
-  user.nickname = newNick;
-  Storage.set('user', user);
-  closeModal('edit-nick-modal');
-  renderProfile();
-  alert('昵称修改成功！');
-}
-
-function showPrivacySettings() {
-  document.getElementById('profile-menu-dropdown')?.classList.remove('active');
-  if (!user) { showLogin(); return; }
-  // 恢复隐私设置状态
-  const settings = ['profile_visible', 'posts_public', 'allow_follow', 'health_sync'];
-  settings.forEach(s => {
-    const el = document.getElementById('privacy-' + s.split('_')[0]);
-    if (el) {
-      if (privacySettings[s]) el.classList.add('active');
-      else el.classList.remove('active');
+  try {
+    const user = getUser();
+    const nameEl = document.getElementById('profile-name');
+    const bioEl = document.getElementById('profile-bio');
+    const avatarEl = document.getElementById('profile-avatar');
+    if (user) {
+      nameEl.textContent = user.nickname;
+      bioEl.textContent = user.bio || '记录美好生活';
+      avatarEl.textContent = user.avatar || '😊';
+      document.getElementById('stat-follow').textContent = Math.floor(Math.random() * 50) + 10;
+      document.getElementById('stat-fans').textContent = Math.floor(Math.random() * 100) + 20;
+      document.getElementById('stat-likes').textContent = Math.floor(Math.random() * 200) + 50;
+    } else {
+      nameEl.textContent = '点击登录';
+      bioEl.textContent = '登录后享受更多功能';
+      avatarEl.textContent = '😊';
+      document.getElementById('stat-follow').textContent = '0';
+      document.getElementById('stat-fans').textContent = '0';
+      document.getElementById('stat-likes').textContent = '0';
+      nameEl.onclick = () => openModal('login');
     }
-  });
-  document.getElementById('privacy-modal')?.classList.add('active');
+    renderProfileContent();
+  } catch(e) { console.error('renderProfile error', e); }
 }
-
-function togglePrivacy(el, key) {
-  el.classList.toggle('active');
-  privacySettings[key] = el.classList.contains('active');
-  Storage.set('privacySettings', privacySettings);
+function toggleDropdown() {
+  document.getElementById('settings-dropdown').classList.toggle('show');
 }
-
-function doLogout() {
-  document.getElementById('profile-menu-dropdown')?.classList.remove('active');
-  if (!user) { alert('你还没有登录'); return; }
-  if (confirm('确定要退出登录吗？')) {
-    user = null;
-    Storage.set('user', null);
-    renderProfile();
-    showPage('home');
-    alert('已安全退出登录');
-  }
-}
-
-function switchProfileTab(tab, el) {
+function switchProfileTab(btn, tab) {
   document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
-  if (el) el.classList.add('active');
-  const content = document.getElementById('profile-content');
-  if (!content) return;
-
-  if (!user) {
-    content.innerHTML = `<div style="text-align:center;padding:40px 20px;color:#999;"><div style="font-size:48px;margin-bottom:12px;">🔒</div><div style="font-size:15px;">登录后查看</div><button onclick="showLogin()" style="margin-top:16px;padding:10px 24px;background:#667eea;color:white;border:none;border-radius:20px;cursor:pointer;">去登录</button></div>`;
-    return;
-  }
-
-  if (tab === 'posts') {
-    content.innerHTML = posts.length ? posts.map(p => `<div class="post-card"><div class="post-header"><div class="post-avatar">${p.avatar}</div><div class="post-meta"><div class="post-author">${p.author}</div><div class="post-time">${p.time}</div></div></div><div class="post-content">${p.content}</div></div>`).join('') : '<div style="text-align:center;padding:40px;color:#999;">还没有发布动态</div>';
-  } else if (tab === 'favorites') {
-    if (favorites.length === 0) {
-      content.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">还没有收藏内容<br><button onclick="showPage("home")" style="margin-top:12px;padding:8px 20px;background:#667eea;color:white;border:none;border-radius:16px;cursor:pointer;">去发现</button></div>';
-    } else {
-      content.innerHTML = favorites.map(f => `
-        <div class="favorite-item">
-          <div class="emoji">${f.emoji || '⭐'}</div>
-          <div class="info">
-            <div class="title">${f.title}</div>
-            <div class="desc">${f.desc || ''} · ${f.time}</div>
-          </div>
-          <button onclick="removeFavorite(${f.id},this)" style="padding:6px 12px;background:#ffebee;color:#c62828;border:none;border-radius:8px;font-size:12px;cursor:pointer;">取消</button>
+  btn.classList.add('active');
+  currentProfileTab = tab;
+  renderProfileContent();
+}
+function renderProfileContent() {
+  try {
+    const container = document.getElementById('profile-content');
+    if (currentProfileTab === 'posts') {
+      const posts = getData('posts') || DEFAULT_DATA.posts;
+      const myPosts = posts.filter(p => p.author === (getUser()?.nickname || '我'));
+      container.innerHTML = myPosts.length ? myPosts.map(p => `
+        <div class="post-card">
+          <div class="post-content">${p.content}</div>
+          <div class="post-actions"><span class="post-action">❤️ ${p.likes}</span><span class="post-action">💬 ${p.comments || 0}</span></div>
         </div>
-      `).join('');
-    }
-  } else if (tab === 'comments') {
-    if (myComments.length === 0) {
-      content.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">还没有评论<br>去社区参与讨论吧</div>';
-    } else {
-      content.innerHTML = myComments.map(c => `
+      `).join('') : '<div class="empty-state"><div class="empty-icon">📝</div><div>还没有发布动态</div></div>';
+    } else if (currentProfileTab === 'favorites') {
+      const favs = getData('favorites') || [];
+      container.innerHTML = favs.length ? favs.map(f => `
+        <div class="fav-item">
+          <div class="fav-emoji">${f.emoji || '⭐'}</div>
+          <div class="fav-info"><div class="fav-title">${f.title}</div><div class="fav-desc">${f.desc}</div></div>
+        </div>
+      `).join('') : '<div class="empty-state"><div class="empty-icon">⭐</div><div>还没有收藏</div></div>';
+    } else if (currentProfileTab === 'comments') {
+      const comments = getData('myComments') || [];
+      container.innerHTML = comments.length ? comments.map(c => `
         <div class="comment-item">
-          <div class="header"><span class="author">${user?.nickname || '我'}</span><span class="time">${c.time}</span></div>
-          <div class="content">${c.content}</div>
-          <div class="target">💬 ${c.target}</div>
+          <div class="comment-header">
+            <div class="comment-avatar">😊</div>
+            <div><div class="comment-author">${c.author}</div><div class="comment-time">${c.time}</div></div>
+          </div>
+          <div class="comment-text">${c.text}</div>
         </div>
-      `).join('');
+      `).join('') : '<div class="empty-state"><div class="empty-icon">💬</div><div>还没有评论</div></div>';
+    } else if (currentProfileTab === 'checkin') {
+      const history = getData('checkinHistory') || {};
+      const dates = Object.keys(history).sort().reverse();
+      container.innerHTML = dates.length ? `
+        <div class="history-list">
+          ${dates.map(d => `
+            <div class="history-date">${d}</div>
+            <div class="history-items">${history[d].map(id => {
+              const items = getData('checkinItems') || DEFAULT_DATA.checkinItems;
+              const item = items.find(i => i.id === id);
+              return item ? `<span class="history-tag">${item.icon} ${item.name}</span>` : '';
+            }).join('')}</div>
+          `).join('')}
+        </div>
+      ` : '<div class="empty-state"><div class="empty-icon">✅</div><div>还没有打卡记录</div></div>';
+    } else if (currentProfileTab === 'badges') {
+      const history = getData('checkinHistory') || {};
+      const totalDays = Object.keys(history).length;
+      container.innerHTML = `
+        <div class="badge-grid">
+          <div class="badge-item"><div class="badge-icon">🌱</div><div class="badge-name">初出茅庐</div><div class="badge-desc">完成首次打卡</div></div>
+          <div class="badge-item"><div class="badge-icon">🔥</div><div class="badge-name">坚持达人</div><div class="badge-desc">连续打卡7天</div></div>
+          <div class="badge-item"><div class="badge-icon">👑</div><div class="badge-name">打卡王者</div><div class="badge-desc">累计打卡30天</div></div>
+        </div>
+        <div style="text-align:center;padding:16px;color:var(--text-muted);font-size:13px;">已累计打卡 ${totalDays} 天</div>
+      `;
     }
-  } else if (tab === 'checkin') {
-    content.innerHTML = checkinItems.map(i => `<div style="background:white;border-radius:12px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;"><div style="font-size:24px;">${i.icon}</div><div style="flex:1;"><div style="font-weight:600;">${i.name}</div><div style="font-size:12px;color:#888;">连续 ${i.streak} 天</div></div></div>`).join('');
-  } else if (tab === 'badges') {
-    content.innerHTML = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
-      <div style="background:white;border-radius:12px;padding:16px;text-align:center;"><div style="font-size:36px;margin-bottom:8px;">🔥</div><div style="font-size:13px;font-weight:600;">初出茅庐</div><div style="font-size:11px;color:#888;">连续打卡3天</div></div>
-      <div style="background:white;border-radius:12px;padding:16px;text-align:center;"><div style="font-size:36px;margin-bottom:8px;">⭐</div><div style="font-size:13px;font-weight:600;">坚持达人</div><div style="font-size:11px;color:#888;">连续打卡7天</div></div>
-      <div style="background:white;border-radius:12px;padding:16px;text-align:center;opacity:0.5;"><div style="font-size:36px;margin-bottom:8px;">👑</div><div style="font-size:13px;font-weight:600;">打卡王者</div><div style="font-size:11px;color:#888;">连续打卡30天</div></div>
-    </div>`;
-  }
+  } catch(e) { console.error('renderProfileContent error', e); }
 }
-
-function removeFavorite(id, btn) {
-  const idx = favorites.findIndex(f => f.id === id);
-  if (idx >= 0) {
-    favorites.splice(idx, 1);
-    Storage.set('favorites', favorites);
-    btn.closest('.favorite-item').remove();
-    if (favorites.length === 0) {
-      document.getElementById('profile-content').innerHTML = '<div style="text-align:center;padding:40px;color:#999;">还没有收藏内容</div>';
-    }
-  }
-}
-
-// ========== 登录/注册功能 ==========
-function showLogin() { 
-  isRegisterMode = false;
-  updateLoginUI();
-  document.getElementById('login-modal')?.classList.add('active'); 
-}
-
-function updateLoginUI() {
-  const confirmInput = document.getElementById('login-confirm-password');
-  const submitBtn = document.getElementById('login-submit-btn');
-  const switchText = document.getElementById('login-switch-text');
-  const subtitle = document.getElementById('login-subtitle');
-
-  if (isRegisterMode) {
-    if (confirmInput) confirmInput.style.display = 'block';
-    if (submitBtn) submitBtn.textContent = '注册';
-    if (switchText) switchText.textContent = '已有账号？立即登录';
-    if (subtitle) subtitle.textContent = '注册开启你的居家生活';
-  } else {
-    if (confirmInput) confirmInput.style.display = 'none';
-    if (submitBtn) submitBtn.textContent = '登录';
-    if (switchText) switchText.textContent = '还没有账号？立即注册';
-    if (subtitle) subtitle.textContent = '登录开启你的居家生活';
-  }
-}
-
-function doLogin() {
-  const phone = document.getElementById('login-phone')?.value;
-  const password = document.getElementById('login-password')?.value;
-  const confirmPassword = document.getElementById('login-confirm-password')?.value;
-
-  if (!phone || !password) { alert('请输入手机号和密码'); return; }
-
-  if (isRegisterMode) {
-    if (!confirmPassword) { alert('请确认密码'); return; }
-    if (password !== confirmPassword) { alert('两次输入的密码不一致，请重新输入'); return; }
-    if (password.length < 6) { alert('密码长度至少6位'); return; }
-    // 注册成功
-    user = { phone: phone, nickname: '用户' + phone.slice(-4), avatar: '👤', bio: '' };
-    Storage.set('user', user);
-    closeModal('login-modal');
+function saveNickname() {
+  try {
+    const name = document.getElementById('new-nickname').value.trim();
+    if (!name) { showToast('请输入昵称'); return; }
+    const user = getUser() || {};
+    user.nickname = name;
+    setData('user', user);
+    closeModal('editName');
+    showToast('昵称已更新');
     renderProfile();
-    showPage('profile');
-    alert('注册成功！欢迎加入居家生活助手');
-  } else {
-    // 登录（模拟验证，任意手机号+密码都可登录）
-    user = { phone: phone, nickname: Storage.get('user', {})?.nickname || '用户' + phone.slice(-4), avatar: '👤', bio: '' };
-    Storage.set('user', user);
-    closeModal('login-modal');
-    renderProfile();
-    showPage('profile');
-  }
+  } catch(e) { showToast('保存失败'); }
+}
+function loadPrivacySettings() {
+  try {
+    const settings = getData('privacySettings') || DEFAULT_DATA.privacySettings;
+    document.getElementById('privacy-profile').checked = settings.profile;
+    document.getElementById('privacy-posts').checked = settings.posts;
+    document.getElementById('privacy-follow').checked = settings.follow;
+    document.getElementById('privacy-health').checked = settings.health;
+  } catch(e) {}
+}
+function savePrivacy() {
+  try {
+    const settings = {
+      profile: document.getElementById('privacy-profile').checked,
+      posts: document.getElementById('privacy-posts').checked,
+      follow: document.getElementById('privacy-follow').checked,
+      health: document.getElementById('privacy-health').checked
+    };
+    setData('privacySettings', settings);
+    showToast('隐私设置已保存');
+  } catch(e) { showToast('保存失败'); }
 }
 
-function toggleLoginMode() {
-  isRegisterMode = !isRegisterMode;
-  updateLoginUI();
-}
-
-// ========== 工具子页面 ==========
-function showTool(tool) {
-  const content = document.getElementById('tool-content');
-  if (!content) return;
-
-  let html = `<div style="background:linear-gradient(135deg,#667eea,#764ba2);padding:16px;display:flex;align-items:center;gap:12px;color:white;">
-    <span style="font-size:24px;cursor:pointer;" onclick="showPage('tools')">←</span>
-    <span style="font-size:18px;font-weight:700;">`;
-
-  if (tool === 'health') {
-    html += `🩺 健康专家</span></div>
-    <div class="health-form">
-      <div class="form-group"><label>身高 (cm)</label><input type="number" id="h-height" placeholder="170"></div>
-      <div class="form-group"><label>体重 (kg)</label><input type="number" id="h-weight" placeholder="65"></div>
-      <div class="form-group"><label>年龄</label><input type="number" id="h-age" placeholder="25"></div>
-      <div class="form-group"><label>性别</label><select id="h-gender"><option value="1">男</option><option value="0">女</option></select></div>
-      <div class="form-group"><label>目标</label><select id="h-goal"><option value="keep">保持</option><option value="lose">减脂</option><option value="gain">增肌</option></select></div>
-      <button class="btn-primary" onclick="calcHealth()" style="width:100%;">生成健康报告</button>
-    </div>
-    <div id="health-result"></div>`;
-  } else if (tool === 'interest') {
-    html += `🎯 兴趣推荐</span></div>
-    <div style="padding:16px;">
-      <div style="background:white;border-radius:12px;padding:12px 16px;margin-bottom:16px;display:flex;gap:8px;overflow-x:auto;">
-        <span class="tag-chip" style="white-space:nowrap;" onclick="filterInterests('all')">全部</span>
-        <span class="tag-chip" style="white-space:nowrap;" onclick="filterInterests('运动')">运动</span>
-        <span class="tag-chip" style="white-space:nowrap;" onclick="filterInterests('艺术')">艺术</span>
-        <span class="tag-chip" style="white-space:nowrap;" onclick="filterInterests('手工')">手工</span>
-        <span class="tag-chip" style="white-space:nowrap;" onclick="filterInterests('学习')">学习</span>
-      </div>
-      <div id="interest-list">
-      ${interestPool.map(i => `
-        <div class="interest-card" data-category="${i.tags.join(' ')}">
-          <div class="cover" style="background:${i.color};">${i.emoji}</div>
-          <div class="info">
-            <div class="title">${i.name}</div>
-            <div class="tags">${i.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
-            <div class="desc">${i.desc}</div>
-            <button class="add-btn" onclick="addInterest(this,${i.id})">+ 加入我的兴趣</button>
-          </div>
-        </div>
-      `).join('')}
-      </div>
-    </div>`;
-  } else if (tool === 'quiz') {
-    html += `❓ 自测问答</span></div>
-    <div class="quiz-card">
-      <div class="quiz-progress"><div class="quiz-progress-fill" id="quiz-progress" style="width:0%"></div></div>
-      <div class="quiz-question" id="quiz-question">你现在的状态是？</div>
-      <div id="quiz-options">
-        <div class="quiz-option" onclick="selectQuiz(this,0)">😴 无聊没事干</div>
-        <div class="quiz-option" onclick="selectQuiz(this,1)">🎮 想要娱乐放松</div>
-        <div class="quiz-option" onclick="selectQuiz(this,2)">😫 疲劳需要休息</div>
-        <div class="quiz-option" onclick="selectQuiz(this,3)">😰 焦虑需要解压</div>
-        <div class="quiz-option" onclick="selectQuiz(this,4)">👥 需要社交互动</div>
-      </div>
-    </div>`;
-  } else if (tool === 'breath') {
-    html += `🧘 放松指南</span></div>
-    <div style="text-align:center;padding:40px 20px;">
-      <div style="font-size:16px;color:#666;margin-bottom:20px;">4-7-8 呼吸法</div>
-      <div class="breath-circle" id="breath-circle">吸气</div>
-      <div style="margin-top:30px;font-size:14px;color:#888;line-height:1.8;">
-        <p>1. 用鼻子吸气 4 秒</p>
-        <p>2. 屏住呼吸 7 秒</p>
-        <p>3. 用嘴呼气 8 秒</p>
-        <p style="margin-top:12px;color:#667eea;font-weight:600;">跟着圆圈节奏呼吸...</p>
-      </div>
-    </div>`;
-  } else if (tool === 'snack') {
-    html += `🍿 零食管控</span></div>
-    <div class="snack-form">
-      <div class="form-group"><label>零食名称</label><input type="text" id="snack-name" placeholder="例如：薯片"></div>
-      <div class="form-group"><label>热量 (大卡)</label><input type="number" id="snack-cal" placeholder="例如：150"></div>
-      <button class="btn-primary" onclick="addSnack()" style="width:100%;">记录</button>
-    </div>
-    <div class="snack-chart">
-      <div style="font-weight:700;margin-bottom:12px;">📊 本周摄入统计</div>
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:4px;"><span>周一</span><span>320 / 500 大卡</span></div>
-      <div class="chart-bar"><div class="chart-bar-fill" style="width:64%"></div></div>
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:4px;"><span>周二</span><span>180 / 500 大卡</span></div>
-      <div class="chart-bar"><div class="chart-bar-fill" style="width:36%"></div></div>
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:4px;"><span>周三</span><span>450 / 500 大卡</span></div>
-      <div class="chart-bar"><div class="chart-bar-fill" style="width:90%"></div></div>
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:4px;"><span>今天</span><span>0 / 500 大卡</span></div>
-      <div class="chart-bar"><div class="chart-bar-fill" style="width:0%"></div></div>
-    </div>
-    <div class="snack-list" id="snack-list"></div>`;
-  } else if (tool === 'fact') {
-    html += `💡 冷知识</span></div>
-    <div id="fact-container"></div>`;
-  } else if (tool === 'challenge') {
-    html += `🏆 有趣小挑战</span></div>
-    <div style="padding:16px;">
-      ${challenges.map(c => `
-        <div style="background:white;border-radius:16px;padding:16px;margin-bottom:12px;display:flex;gap:14px;align-items:center;">
-          <div style="font-size:40px;">${c.emoji}</div>
-          <div style="flex:1;">
-            <div style="font-size:16px;font-weight:700;color:#333;">${c.title}</div>
-            <div style="font-size:13px;color:#888;margin:4px 0;">${c.desc}</div>
-            <div style="font-size:12px;color:#667eea;">👥 ${c.participants} 人参与</div>
-          </div>
-          <button class="btn-primary" style="padding:8px 16px;font-size:13px;white-space:nowrap;" onclick="this.textContent='已参与';this.style.opacity='0.7'">参与挑战</button>
-        </div>
-      `).join('')}
-    </div>`;
-  } else if (tool === 'remedy') {
-    html += `🛡️ 补救方案</span></div>
-    <div style="padding:16px;">
-      ${remedyData.map(r => `
-        <div style="background:white;border-radius:16px;padding:16px;margin-bottom:12px;">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-            <div style="font-size:28px;">${r.emoji}</div>
-            <div style="font-size:16px;font-weight:700;">${r.title}</div>
-          </div>
-          <div style="font-size:14px;color:#555;line-height:1.6;">${r.desc}</div>
-        </div>
-      `).join('')}
-    </div>`;
-  } else if (tool === 'faq') {
-    html += `📚 常见问题</span></div>
-    <div style="padding:16px;">
-      ${faqData.map((f, i) => `
-        <div style="background:white;border-radius:16px;padding:16px;margin-bottom:12px;cursor:pointer;" onclick="toggleFaq(${i})">
-          <div style="font-size:15px;font-weight:700;color:#333;margin-bottom:4px;">Q: ${f.q}</div>
-          <div id="faq-ans-${i}" style="font-size:14px;color:#555;line-height:1.6;display:none;padding-top:8px;border-top:1px solid #f0f0f0;margin-top:8px;">A: ${f.a}</div>
-        </div>
-      `).join('')}
-    </div>`;
-  } else if (tool === 'puzzle') {
-    html += `🧩 智力题</span></div>
-    <div style="padding:16px;">
-      ${puzzleData.map((p, i) => `
-        <div style="background:white;border-radius:16px;padding:16px;margin-bottom:12px;">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-            <div style="font-size:28px;">${p.emoji}</div>
-            <div style="font-size:16px;font-weight:700;">${p.title}</div>
-          </div>
-          <div style="font-size:14px;color:#555;line-height:1.6;margin-bottom:12px;">${p.desc}</div>
-          <button class="btn-secondary" onclick="showPuzzleAnswer(${i},this)" style="width:100%;">查看答案</button>
-          <div id="puzzle-ans-${i}" style="display:none;margin-top:12px;padding:12px;background:#f8f9ff;border-radius:8px;font-size:14px;color:#667eea;line-height:1.6;">${p.answer}</div>
-        </div>
-      `).join('')}
-    </div>`;
-  } else if (tool === 'hack') {
-    html += `🔧 居家妙招</span></div>
-    <div style="padding:16px;">
-      ${hackData.map(h => `
-        <div style="background:white;border-radius:16px;padding:16px;margin-bottom:12px;">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-            <div style="font-size:28px;">${h.emoji}</div>
-            <div style="font-size:16px;font-weight:700;">${h.title}</div>
-          </div>
-          <div style="font-size:14px;color:#555;line-height:1.6;">${h.desc}</div>
-        </div>
-      `).join('')}
-    </div>`;
-  } else {
-    html += `🔧 功能开发中</span></div>
-    <div style="text-align:center;padding:80px 20px;color:#999;">
-      <div style="font-size:64px;margin-bottom:16px;">🚧</div>
-      <div style="font-size:16px;">该功能正在开发中，敬请期待</div>
-    </div>`;
-  }
-
-  content.innerHTML = html;
-  showPage('tool');
-
-  if (tool === 'fact') renderFact();
-  if (tool === 'breath') startBreathAnimation();
-  if (tool === 'snack') renderSnackList();
-}
-
-function filterInterests(category) {
-  const cards = document.querySelectorAll('.interest-card');
-  cards.forEach(card => {
-    if (category === 'all') {
-      card.style.display = 'flex';
-    } else {
-      const tags = card.getAttribute('data-category') || '';
-      card.style.display = tags.includes(category) ? 'flex' : 'none';
+function showToolPage(tool) {
+  try {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const sub = document.getElementById('tool-subpages');
+    sub.classList.add('active');
+    switch(tool) {
+      case 'health': renderHealthPage(sub); break;
+      case 'snacks': renderSnacksPage(sub); break;
+      case 'breath': renderBreathPage(sub); break;
+      case 'interest': renderInterestPage(sub); break;
+      case 'quiz': renderQuizPage(sub); break;
+      case 'facts': renderFactsPage(sub); break;
+      case 'challenges': renderCrudPage(sub, 'challengesData', '🏆 小挑战', '挑战'); break;
+      case 'remedy': renderCrudPage(sub, 'remedyDataList', '🛡️ 补救方案', '补救'); break;
+      case 'faq': renderCrudPage(sub, 'faqDataList', '📚 常见问题', '问答'); break;
+      case 'hacks': renderCrudPage(sub, 'hackDataList', '🔧 居家妙招', '妙招'); break;
+      case 'puzzle': renderPuzzlePage(sub); break;
     }
-  });
+    window.scrollTo(0, 0);
+  } catch(e) { console.error('showToolPage error', e); }
+}
+function renderTools() {
+  document.getElementById('tool-subpages').classList.remove('active');
+  document.getElementById('tool-subpages').innerHTML = '';
 }
 
-function addInterest(btn, id) {
-  if (!user) { showLogin(); return; }
-  btn.textContent = '已添加';
-  btn.style.background = '#4CAF50';
-  const item = interestPool.find(i => i.id === id);
-  if (item) {
-    favorites.unshift({ id: item.id, type: 'interest', title: item.name, desc: item.desc, emoji: item.emoji, time: new Date().toLocaleDateString() });
-    Storage.set('favorites', favorites);
-  }
-}
-
-function toggleFaq(idx) {
-  const el = document.getElementById('faq-ans-' + idx);
-  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
-}
-
-function showPuzzleAnswer(idx, btn) {
-  const el = document.getElementById('puzzle-ans-' + idx);
-  if (el) {
-    el.style.display = 'block';
-    btn.style.display = 'none';
-  }
-}
-
-let currentFact = 0;
-function renderFact() {
-  const container = document.getElementById('fact-container');
-  if (!container) return;
-  const f = facts[currentFact];
+function renderHealthPage(container) {
   container.innerHTML = `
-    <div class="fact-card">
-      <div class="emoji">${f.emoji}</div>
-      <div class="title">${f.title}</div>
-      <div class="content">${f.content}</div>
-      <button class="next-btn" onclick="nextFact()">下一个冷知识 →</button>
+    <div class="page-header">
+      <button class="back-btn" onclick="switchTab('tools')">← 返回</button>
+      <div class="page-header-title">🩺 健康专家</div>
     </div>
+    <div class="health-form">
+      <div class="form-group"><label class="form-label">身高 (cm)</label><input type="number" class="form-input" id="h-height" placeholder="170"></div>
+      <div class="form-group"><label class="form-label">体重 (kg)</label><input type="number" class="form-input" id="h-weight" placeholder="65"></div>
+      <div class="form-group"><label class="form-label">年龄</label><input type="number" class="form-input" id="h-age" placeholder="25"></div>
+      <div class="form-group"><label class="form-label">性别</label>
+        <select class="form-input" id="h-gender"><option value="male">男</option><option value="female">女</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">目标</label>
+        <select class="form-input" id="h-goal"><option value="lose">减脂</option><option value="maintain">保持</option><option value="gain">增肌</option></select>
+      </div>
+      <button class="btn-primary" onclick="calcHealth()">计算</button>
+    </div>
+    <div id="health-result"></div>
   `;
 }
-
-function nextFact() { currentFact = (currentFact + 1) % facts.length; renderFact(); }
-
-function startBreathAnimation() {
-  const circle = document.getElementById('breath-circle');
-  if (!circle) return;
-  let phase = 0;
-  setInterval(() => {
-    phase = (phase + 1) % 3;
-    if (phase === 0) circle.textContent = '吸气';
-    else if (phase === 1) circle.textContent = '屏息';
-    else circle.textContent = '呼气';
-  }, 4000);
-}
-
 function calcHealth() {
-  const h = parseFloat(document.getElementById('h-height')?.value) || 170;
-  const w = parseFloat(document.getElementById('h-weight')?.value) || 65;
-  const age = parseInt(document.getElementById('h-age')?.value) || 25;
-  const gender = document.getElementById('h-gender')?.value;
-  const bmi = (w / ((h/100) ** 2)).toFixed(1);
-  const bmr = gender === '1' 
-    ? (88.362 + 13.397*w + 4.799*h - 5.677*age).toFixed(0)
-    : (447.593 + 9.247*w + 3.098*h - 4.330*age).toFixed(0);
-  let status = '正常'; let color = '#4CAF50';
-  if (bmi < 18.5) { status = '偏瘦'; color = '#FF9800'; }
-  else if (bmi > 24) { status = '超重'; color = '#F44336'; }
-
-  const resultEl = document.getElementById('health-result');
-  if (resultEl) {
-    resultEl.innerHTML = `
-      <div class="health-result">
-        <div class="bmi-num">${bmi}</div>
-        <div class="bmi-label">BMI 指数 - ${status}</div>
-        <div style="display:flex;justify-content:center;gap:30px;margin-bottom:16px;">
-          <div><div style="font-size:20px;font-weight:700;color:#667eea;">${bmr}</div><div style="font-size:12px;color:#888;">基础代谢 (kcal)</div></div>
-          <div><div style="font-size:20px;font-weight:700;color:#667eea;">${(bmr*1.2).toFixed(0)}</div><div style="font-size:12px;color:#888;">每日所需 (kcal)</div></div>
-        </div>
-        <div class="plan-card">
-          <div style="font-weight:700;margin-bottom:8px;">🍽 推荐早餐</div>
-          <div style="font-size:13px;color:#555;line-height:1.6;">全麦面包 + 水煮蛋 + 牛奶 + 小番茄<br><span style="color:#888;">约 400 大卡</span></div>
-        </div>
-        <div class="plan-card">
-          <div style="font-weight:700;margin-bottom:8px;">🍽 推荐午餐</div>
-          <div style="font-size:13px;color:#555;line-height:1.6;">糙米饭 + 鸡胸肉 + 西兰花 + 胡萝卜<br><span style="color:#888;">约 550 大卡</span></div>
-        </div>
-        <div class="plan-card">
-          <div style="font-weight:700;margin-bottom:8px;">🍽 推荐晚餐</div>
-          <div style="font-size:13px;color:#555;line-height:1.6;">清蒸鱼 + 凉拌黄瓜 + 少量米饭<br><span style="color:#888;">约 400 大卡</span></div>
-        </div>
+  try {
+    const h = parseFloat(document.getElementById('h-height').value);
+    const w = parseFloat(document.getElementById('h-weight').value);
+    const age = parseFloat(document.getElementById('h-age').value);
+    const gender = document.getElementById('h-gender').value;
+    const goal = document.getElementById('h-goal').value;
+    if (!h || !w || !age) { showToast('请填写完整信息'); return; }
+    const bmi = (w / ((h / 100) ** 2)).toFixed(1);
+    let bmr = gender === 'male' ? 10 * w + 6.25 * h - 5 * age + 5 : 10 * w + 6.25 * h - 5 * age - 161;
+    bmr = Math.round(bmr);
+    let bmiLabel = '';
+    if (bmi < 18.5) bmiLabel = '偏瘦';
+    else if (bmi < 24) bmiLabel = '正常';
+    else if (bmi < 28) bmiLabel = '偏胖';
+    else bmiLabel = '肥胖';
+    let meals = '';
+    if (goal === 'lose') meals = '早餐：全麦面包+鸡蛋+牛奶；午餐：鸡胸肉+蔬菜+少量米饭；晚餐：鱼肉+沙拉';
+    else if (goal === 'gain') meals = '早餐：燕麦+鸡蛋+香蕉+牛奶；午餐：牛肉+土豆+蔬菜；晚餐：三文鱼+意面+蔬菜';
+    else meals = '早餐：杂粮粥+鸡蛋+水果；午餐：瘦肉+蔬菜+米饭；晚餐：豆腐+蔬菜+少量主食';
+    document.getElementById('health-result').innerHTML = `
+      <div class="bmi-result">
+        <div class="bmi-number">${bmi}</div>
+        <div class="bmi-label">BMI指数 - ${bmiLabel}</div>
+        <div class="bmi-advice">基础代谢：${bmr} 千卡/天<br>三餐推荐：${meals}</div>
       </div>
     `;
-  }
+    showToast('计算完成');
+  } catch(e) { showToast('计算失败'); }
 }
 
-function addSnack() {
-  const name = document.getElementById('snack-name')?.value;
-  const cal = document.getElementById('snack-cal')?.value;
-  if (!name || !cal) return;
-  const snacks = Storage.get('snacks', []);
-  snacks.unshift({ name, cal, time: new Date().toLocaleDateString() });
-  Storage.set('snacks', snacks);
-  document.getElementById('snack-name').value = '';
-  document.getElementById('snack-cal').value = '';
+function renderSnacksPage(container) {
+  const snacks = getData('snacks') || [];
+  const total = snacks.reduce((s, x) => s + (parseInt(x.cal) || 0), 0);
+  const weekTotal = snacks.filter(s => {
+    const d = new Date(s.date);
+    const now = new Date();
+    return (now - d) < 7 * 24 * 60 * 60 * 1000;
+  }).reduce((s, x) => s + (parseInt(x.cal) || 0), 0);
+  container.innerHTML = `
+    <div class="page-header">
+      <button class="back-btn" onclick="switchTab('tools')">← 返回</button>
+      <div class="page-header-title">🍿 零食管控</div>
+    </div>
+    <div class="snack-stats">
+      <div class="snack-stat"><div class="snack-stat-num">${snacks.length}</div><div class="snack-stat-label">记录数</div></div>
+      <div class="snack-stat"><div class="snack-stat-num">${total}</div><div class="snack-stat-label">总热量(kcal)</div></div>
+      <div class="snack-stat"><div class="snack-stat-num">${weekTotal}</div><div class="snack-stat-label">本周(kcal)</div></div>
+    </div>
+    <div class="snack-form">
+      <input type="text" id="snack-name" placeholder="零食名称">
+      <input type="number" id="snack-cal" placeholder="热量" style="width:80px;">
+      <button onclick="addSnack()">添加</button>
+    </div>
+    <div class="crud-list" id="snack-list"></div>
+  `;
   renderSnackList();
 }
-
 function renderSnackList() {
+  const snacks = getData('snacks') || [];
   const list = document.getElementById('snack-list');
   if (!list) return;
-  const snacks = Storage.get('snacks', []);
-  if (snacks.length === 0) {
-    list.innerHTML = '<div style="text-align:center;padding:20px;color:#999;font-size:14px;">还没有记录零食</div>';
-    return;
-  }
-  list.innerHTML = snacks.map(s => `
-    <div class="snack-item">
-      <div class="name">${s.name}</div>
-      <div class="cal">${s.cal} 大卡</div>
+  list.innerHTML = snacks.slice().reverse().map((s, idx) => `
+    <div class="crud-item">
+      <div class="crud-item-header">
+        <div class="crud-item-emoji">🍿</div>
+        <div class="crud-item-title">${s.name}</div>
+        <div class="crud-item-actions">
+          <button onclick="editSnack(${snacks.length - 1 - idx})">✏️</button>
+          <button onclick="deleteSnack(${snacks.length - 1 - idx})">🗑️</button>
+        </div>
+      </div>
+      <div class="crud-item-desc">${s.cal} kcal · ${s.date}</div>
     </div>
   `).join('');
+}
+function addSnack() {
+  try {
+    const name = document.getElementById('snack-name').value.trim();
+    const cal = document.getElementById('snack-cal').value.trim();
+    if (!name || !cal) { showToast('请填写完整'); return; }
+    const snacks = getData('snacks') || [];
+    snacks.push({ name, cal, date: new Date().toLocaleDateString() });
+    setData('snacks', snacks);
+    document.getElementById('snack-name').value = '';
+    document.getElementById('snack-cal').value = '';
+    renderSnacksPage(document.getElementById('tool-subpages'));
+    showToast('添加成功');
+  } catch(e) { showToast('添加失败'); }
+}
+function editSnack(idx) {
+  try {
+    const snacks = getData('snacks') || [];
+    const item = snacks[idx];
+    if (!item) return;
+    const name = prompt('零食名称：', item.name);
+    if (name === null) return;
+    const cal = prompt('热量：', item.cal);
+    if (cal === null) return;
+    snacks[idx] = { ...item, name: name.trim() || item.name, cal: cal.trim() || item.cal };
+    setData('snacks', snacks);
+    renderSnacksPage(document.getElementById('tool-subpages'));
+    showToast('修改成功');
+  } catch(e) { showToast('修改失败'); }
+}
+function deleteSnack(idx) {
+  try {
+    if (!confirm('确定删除这条记录吗？')) return;
+    const snacks = getData('snacks') || [];
+    snacks.splice(idx, 1);
+    setData('snacks', snacks);
+    renderSnacksPage(document.getElementById('tool-subpages'));
+    showToast('删除成功');
+  } catch(e) { showToast('删除失败'); }
+}
+
+function renderBreathPage(container) {
+  container.innerHTML = `
+    <div class="page-header">
+      <button class="back-btn" onclick="switchTab('tools')">← 返回</button>
+      <div class="page-header-title">🧘 放松指南</div>
+      <div class="page-header-sub">4-7-8 呼吸法</div>
+    </div>
+    <div class="breath-container">
+      <div class="breath-circle" id="breath-circle">吸气</div>
+      <div class="breath-text">跟随圆圈节奏呼吸<br>吸气4秒 → 屏息7秒 → 呼气8秒</div>
+    </div>
+  `;
+  const circle = document.getElementById('breath-circle');
+  if (circle) {
+    const texts = ['吸气', '屏息', '呼气'];
+    const durations = [4000, 7000, 8000];
+    let i = 0;
+    function cycle() {
+      if (!circle) return;
+      circle.textContent = texts[i];
+      setTimeout(() => { i = (i + 1) % 3; cycle(); }, durations[i]);
+    }
+    cycle();
+  }
+}
+
+let currentInterestFilter = '全部';
+function renderInterestPage(container) {
+  const pool = getData('interestPool') || DEFAULT_DATA.interestPool;
+  const favs = getData('favorites') || [];
+  const categories = ['全部', '艺术', '运动', '手工', '生活', '学习'];
+  container.innerHTML = `
+    <div class="page-header">
+      <button class="back-btn" onclick="switchTab('tools')">← 返回</button>
+      <div class="page-header-title">🎯 兴趣推荐</div>
+    </div>
+    <div class="interest-filters">
+      ${categories.map(c => `<button class="tag ${c === currentInterestFilter ? 'active' : ''}" onclick="filterInterest('${c}')">${c}</button>`).join('')}
+    </div>
+    <div class="interest-grid" id="interest-grid"></div>
+  `;
+  renderInterestGrid(pool, favs);
+}
+function filterInterest(cat) {
+  currentInterestFilter = cat;
+  renderInterestPage(document.getElementById('tool-subpages'));
+}
+function renderInterestGrid(pool, favs) {
+  const grid = document.getElementById('interest-grid');
+  if (!grid) return;
+  const filtered = currentInterestFilter === '全部' ? pool : pool.filter(p => p.category === currentInterestFilter);
+  grid.innerHTML = filtered.map(item => {
+    const isAdded = favs.find(f => f.id === item.id && f.type === 'interest');
+    return `
+      <div class="interest-card">
+        <div class="interest-emoji">${item.emoji}</div>
+        <div class="interest-info">
+          <div class="interest-name">${item.name}</div>
+          <div class="interest-cat">${item.category} · ${item.tags.join(' ')}</div>
+          <div class="interest-desc">${item.desc}</div>
+        </div>
+        <button class="interest-add ${isAdded ? 'added' : ''}" onclick="addInterest(${item.id})" ${isAdded ? 'disabled' : ''}>
+          ${isAdded ? '已加入' : '加入'}
+        </button>
+      </div>
+    `;
+  }).join('');
+}
+function addInterest(id) {
+  try {
+    if (!isLoggedIn()) { openModal('login'); return; }
+    const pool = getData('interestPool') || DEFAULT_DATA.interestPool;
+    const item = pool.find(p => p.id === id);
+    if (!item) return;
+    const favs = getData('favorites') || [];
+    if (favs.find(f => f.id === id && f.type === 'interest')) { showToast('已经收藏过了'); return; }
+    favs.push({ id: id, type: 'interest', emoji: item.emoji, title: item.name, desc: item.desc });
+    setData('favorites', favs);
+    showToast('已加入我的兴趣');
+    renderInterestPage(document.getElementById('tool-subpages'));
+  } catch(e) { showToast('操作失败'); }
 }
 
 let quizStep = 0;
-const quizQuestions = [
-  { q: '你现在的状态是？', options: ['😴 无聊没事干','🎮 想要娱乐放松','😫 疲劳需要休息','😰 焦虑需要解压','👥 需要社交互动'] },
-  { q: '你有多少空闲时间？', options: ['⏱️ 5分钟以内','⏱️ 15分钟左右','⏱️ 30分钟','⏱️ 1小时以上','⏱️ 一整天'] },
-  { q: '你更倾向于？', options: ['🧠 动脑思考','💪 身体活动','🎨 艺术创作','🛋️ 安静休息','👥 与人互动'] }
+let quizAnswers = [];
+const QUIZ_QUESTIONS = [
+  { q: '周末空闲时，你更喜欢？', options: ['在家看书/看电影', '出门运动/逛街', '做手工/烹饪', '学习新技能'] },
+  { q: '面对压力，你会选择？', options: ['独自安静思考', '找朋友倾诉', '运动发泄', '沉浸爱好转移'] },
+  { q: '你理想的居家环境是？', options: ['整洁简约', '温馨充满绿植', '有艺术气息', '功能齐全的工作室'] }
 ];
-
-function selectQuiz(el, idx) {
-  document.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
-  el.classList.add('selected');
-  setTimeout(() => {
-    quizStep++;
-    if (quizStep < quizQuestions.length) {
-      const progress = document.getElementById('quiz-progress');
-      const question = document.getElementById('quiz-question');
-      const options = document.getElementById('quiz-options');
-      if (progress) progress.style.width = ((quizStep/quizQuestions.length)*100) + '%';
-      if (question) question.textContent = quizQuestions[quizStep].q;
-      if (options) options.innerHTML = quizQuestions[quizStep].options.map((opt,i) => 
-        `<div class="quiz-option" onclick="selectQuiz(this,${i})">${opt}</div>`
-      ).join('');
-    } else {
-      const progress = document.getElementById('quiz-progress');
-      if (progress) progress.style.width = '100%';
-      const card = document.querySelector('.quiz-card');
-      if (card) card.innerHTML = `
-        <div style="text-align:center;padding:20px;">
-          <div style="font-size:48px;margin-bottom:12px;">🎯</div>
-          <div style="font-size:18px;font-weight:700;color:#333;margin-bottom:8px;">测试结果：娱乐放松型</div>
-          <div style="font-size:14px;color:#666;line-height:1.6;margin-bottom:16px;">根据你的回答，推荐你尝试：<br>🎨 水彩画入门<br>🧘 5分钟冥想<br>🎸 尤克里里弹唱</div>
-          <button class="btn-primary" onclick="showTool('interest')">查看兴趣推荐</button>
-        </div>
-      `;
-      quizStep = 0;
-    }
-  }, 400);
+const QUIZ_RESULTS = [
+  { emoji: '📖', title: '知性阅读者', desc: '你享受独处的宁静，阅读和学习是你的最佳伴侣。' },
+  { emoji: '🏃', title: '活力行动派', desc: '你热爱运动和社交，动起来让你感到充实快乐。' },
+  { emoji: '🎨', title: '创意艺术家', desc: '你有丰富的创造力，手工和艺术是你表达自我的方式。' },
+  { emoji: '🧘', title: '平衡生活家', desc: '你追求身心的和谐，善于在忙碌中找到平静。' }
+];
+function renderQuizPage(container) {
+  quizStep = 0; quizAnswers = [];
+  container.innerHTML = `
+    <div class="page-header">
+      <button class="back-btn" onclick="switchTab('tools')">← 返回</button>
+      <div class="page-header-title">❓ 自测问答</div>
+    </div>
+    <div class="quiz-container" id="quiz-container"></div>
+  `;
+  renderQuizQuestion();
+}
+function renderQuizQuestion() {
+  const container = document.getElementById('quiz-container');
+  if (!container) return;
+  if (quizStep >= QUIZ_QUESTIONS.length) {
+    const resultIdx = quizAnswers.reduce((a, b) => a + b, 0) % QUIZ_RESULTS.length;
+    const r = QUIZ_RESULTS[resultIdx];
+    container.innerHTML = `
+      <div class="quiz-result">
+        <div class="quiz-result-emoji">${r.emoji}</div>
+        <div class="quiz-result-title">${r.title}</div>
+        <div style="color:var(--text-light);line-height:1.6;">${r.desc}</div>
+        <button class="btn-primary" style="margin-top:20px;" onclick="renderQuizPage(document.getElementById('tool-subpages'))">再测一次</button>
+      </div>
+    `;
+    return;
+  }
+  const q = QUIZ_QUESTIONS[quizStep];
+  const pct = ((quizStep) / QUIZ_QUESTIONS.length * 100) + '%';
+  container.innerHTML = `
+    <div class="quiz-progress"><div class="quiz-progress-bar" style="width:${pct}"></div></div>
+    <div class="quiz-question">${q.q}</div>
+    <div class="quiz-options">
+      ${q.options.map((opt, idx) => `<button class="quiz-option" onclick="answerQuiz(${idx})">${opt}</button>`).join('')}
+    </div>
+  `;
+}
+function answerQuiz(idx) {
+  quizAnswers.push(idx);
+  quizStep++;
+  renderQuizQuestion();
 }
 
-// 点击页面其他地方关闭下拉菜单
-document.addEventListener('click', function(e) {
-  const menu = document.getElementById('profile-menu-dropdown');
-  const menuBtn = document.querySelector('.profile-menu');
-  if (menu && menuBtn && !menu.contains(e.target) && !menuBtn.contains(e.target)) {
-    menu.classList.remove('active');
-  }
-});
+let factIndex = 0;
+function renderFactsPage(container) {
+  const facts = getData('facts') || DEFAULT_DATA.facts;
+  container.innerHTML = `
+    <div class="page-header">
+      <button class="back-btn" onclick="switchTab('tools')">← 返回</button>
+      <div class="page-header-title">💡 冷知识</div>
+    </div>
+    <div class="fact-card">
+      <div class="fact-emoji" id="fact-emoji">${facts[0].emoji}</div>
+      <div class="fact-text" id="fact-text">${facts[0].text}</div>
+      <button class="btn-primary" onclick="nextFact()">下一个</button>
+    </div>
+  `;
+  factIndex = 0;
+}
+function nextFact() {
+  try {
+    const facts = getData('facts') || DEFAULT_DATA.facts;
+    factIndex = (factIndex + 1) % facts.length;
+    const emojiEl = document.getElementById('fact-emoji');
+    const textEl = document.getElementById('fact-text');
+    if (emojiEl) emojiEl.textContent = facts[factIndex].emoji;
+    if (textEl) textEl.textContent = facts[factIndex].text;
+  } catch(e) { showToast('切换失败'); }
+}
 
-// 初始化
-renderFeed();
-if (user) renderProfile();
+let puzzleIndex = 0;
+function renderPuzzlePage(container) {
+  const puzzles = getData('puzzleData') || DEFAULT_DATA.puzzleData;
+  container.innerHTML = `
+    <div class="page-header">
+      <button class="back-btn" onclick="switchTab('tools')">← 返回</button>
+      <div class="page-header-title">🧩 智力题</div>
+    </div>
+    <div class="puzzle-card">
+      <div class="puzzle-question">${puzzles[0].question}</div>
+      <button class="btn-secondary" onclick="togglePuzzleAnswer()">查看答案</button>
+      <div class="puzzle-answer" id="puzzle-answer">${puzzles[0].answer}</div>
+      <button class="btn-primary" style="margin-top:12px;" onclick="nextPuzzle()">下一题</button>
+    </div>
+  `;
+  puzzleIndex = 0;
+}
+function togglePuzzleAnswer() {
+  const el = document.getElementById('puzzle-answer');
+  if (el) el.classList.toggle('show');
+}
+function nextPuzzle() {
+  try {
+    const puzzles = getData('puzzleData') || DEFAULT_DATA.puzzleData;
+    puzzleIndex = (puzzleIndex + 1) % puzzles.length;
+    const container = document.getElementById('tool-subpages');
+    renderPuzzlePage(container);
+  } catch(e) { showToast('切换失败'); }
+}
+
+function renderCrudPage(container, dataKey, title, typeLabel) {
+  const items = getData(dataKey) || DEFAULT_DATA[dataKey] || [];
+  container.innerHTML = `
+    <div class="page-header">
+      <button class="back-btn" onclick="switchTab('tools')">← 返回</button>
+      <div class="page-header-title">${title}</div>
+    </div>
+    <button class="crud-add-btn" onclick="addCrudItem('${dataKey}')">➕ 新增${typeLabel}</button>
+    <div class="crud-list" id="crud-list-${dataKey}"></div>
+  `;
+  renderCrudList(dataKey);
+}
+function renderCrudList(dataKey) {
+  const items = getData(dataKey) || DEFAULT_DATA[dataKey] || [];
+  const list = document.getElementById('crud-list-' + dataKey);
+  if (!list) return;
+  list.innerHTML = items.map((item, idx) => `
+    <div class="crud-item">
+      <div class="crud-item-header">
+        <div class="crud-item-emoji">${item.emoji || '⭐'}</div>
+        <div class="crud-item-title">${item.title}</div>
+        <div class="crud-item-actions">
+          <button onclick="editCrudItem('${dataKey}', ${idx})">✏️</button>
+          <button onclick="deleteCrudItem('${dataKey}', ${idx})">🗑️</button>
+        </div>
+      </div>
+      <div class="crud-item-desc">${item.desc}</div>
+    </div>
+  `).join('');
+}
+function addCrudItem(dataKey) {
+  try {
+    const title = prompt(`输入${dataKey.includes('challenge') ? '挑战' : dataKey.includes('remedy') ? '补救' : dataKey.includes('faq') ? '问题' : '妙招'}标题：`);
+    if (!title || !title.trim()) return;
+    const desc = prompt('输入描述：');
+    if (desc === null) return;
+    const emoji = prompt('输入一个emoji：') || '⭐';
+    const items = getData(dataKey) || [];
+    items.push({ id: Date.now(), title: title.trim(), desc: desc.trim(), emoji: emoji.trim() });
+    setData(dataKey, items);
+    renderCrudList(dataKey);
+    showToast('添加成功');
+  } catch(e) { showToast('添加失败'); }
+}
+function editCrudItem(dataKey, idx) {
+  try {
+    const items = getData(dataKey) || [];
+    const item = items[idx];
+    if (!item) return;
+    const title = prompt('标题：', item.title);
+    if (title === null) return;
+    const desc = prompt('描述：', item.desc);
+    if (desc === null) return;
+    const emoji = prompt('emoji：', item.emoji) || item.emoji;
+    items[idx] = { ...item, title: title.trim() || item.title, desc: desc.trim() || item.desc, emoji: emoji.trim() || item.emoji };
+    setData(dataKey, items);
+    renderCrudList(dataKey);
+    showToast('修改成功');
+  } catch(e) { showToast('修改失败'); }
+}
+function deleteCrudItem(dataKey, idx) {
+  try {
+    if (!confirm('确定删除吗？')) return;
+    const items = getData(dataKey) || [];
+    items.splice(idx, 1);
+    setData(dataKey, items);
+    renderCrudList(dataKey);
+    showToast('删除成功');
+  } catch(e) { showToast('删除失败'); }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  try {
+    initData();
+    renderHomeFeed();
+  } catch(e) { console.error('init error', e); }
+});
 </script>
 </body>
 </html>
